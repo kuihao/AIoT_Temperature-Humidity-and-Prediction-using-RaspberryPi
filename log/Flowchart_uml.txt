@@ -1,0 +1,38 @@
+@startuml
+
+title Flowchart of Rainy Predicton System \n
+
+start
+
+:1. Use raspberry pi detecting \n   <b>temperature and humidity ;
+
+note right
+with DHT11 module
+end note
+
+:2. Record sensor datas into <b>csv</b> file;
+
+:3. Automaticaly <b>upload</b> datas to <b>Ubidots</b>;
+
+note right
+cloud saving,
+<b>turn datas into chart</b>
+end note
+
+:4. Cloud computing to <b>predict</b> next hour weather;
+
+note right
+with <b>linear regression</b> model
+end note
+
+:5. Automaticaly <b>upload</b> predict result to <b>Ubidots</b>;
+
+:6. <b>Anomaly dection</b> (and <b>notifying with email</b>);
+
+:7. Show the temperature, humidity,
+          <b>rainy predicton</b> and
+    <b>anomaly dection</b> in <b>web chart</b>;
+
+stop
+
+@enduml
