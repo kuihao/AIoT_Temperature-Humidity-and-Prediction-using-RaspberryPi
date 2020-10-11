@@ -14,13 +14,13 @@
 		[scp/batch] scp -r <本地檔案夾路徑> <帳號>@<遠端主機位址>:<遠端檔案俠位置路徑>  
 		注意: 樹莓派格式初始為 pi@<IP>  
 # 2020/10/11 進度報告:<br>
-	* <b>已完成</b>
+	* **已完成**
 		* 樹莓派的python程式撰寫
 			* 溫溼度感測
 			* CSV自動存檔
 			* 雲端儲存資料
 			* 網頁顯示資料
-	* <b>待完成</b>
+	* **待完成**
 		* google excel表單儲存及資料定時下載功能(約3小時)
 			* ref1: https://help.ubidots.com/en/articles/934604-how-to-export-your-ubidots-data-to-google-sheets
 			* ref2: https://help.ubidots.com/en/articles/2331043-import-data-to-ubidots-from-google-sheets
