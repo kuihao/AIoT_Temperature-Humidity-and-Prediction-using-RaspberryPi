@@ -92,6 +92,6 @@ with open('dht11_record.csv', 'a') as dhtfile:
                 print("[INFO] Post finished.")
             else:
                 print('[ERROR]Failed to get reading. Try again!')
-            time.sleep(5)
+            time.sleep(3600)
     except KeyboardInterrupt:
         print('[INFO]Abort!')
