@@ -2,7 +2,7 @@
 	* 狀況描述：確定pip模組都正確按裝於python3，但編譯檔案時卻找不到模組  
 	* 解決：初始預設的python版本為python2，需要將預設版本設定成python3才能正確使用指令「phthon <檔案名>.py」，不更改的話需使用指令「python3 <檔案名>.py」才能正確執行 
 	* 更改版本的指令： $ sudo alias python='/usr/bin/python3.4'  
-	* 註:python3的版本要依所安裝之版本為準*
+	* 註:python3的版本要依所安裝之版本為準
 
 # 2020/10/11 terminal ssh/scp commands :  
 	* step1: 查詢ip  
