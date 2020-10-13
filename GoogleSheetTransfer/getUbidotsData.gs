@@ -5,10 +5,19 @@ var URL = "http://industrial.api.ubidots.com/api/v1.6/"
 var DEVICE_ID = "<ubidots device ID>"
 var VARIABLE_TEMPERATURE_ID = "<ubidots variable ID>"
 var VARIABLE_HUMIDITY_ID = "<ubidots variable ID>"
-var NUMBER_OF_VALUES = "100" // Number of values to retieve from the variable.
+var NUMBER_OF_VALUES = "700" // Number of values to retieve from the variable.
 var VARIABLE_SHEET = "Newest datas" // Name of the sheet where the variables values will be store.
 var SHEET_NAME_HISTORY_TEMPERATURE = "History Temperature" // Name of the sheet where the values from the variable will be store.
 var SHEET_NAME_HISTORY_HUMIDITY = "History Humidity"
+
+// set sheet Trigger: Every Hour update the google sheet automatically 
+function auto_exection(){
+  get_newest_data();
+  get_history_temperature();
+  get_history_humidity();
+}
+
+// when open the google sheet, add a botton 'Ubidots' in tool bar
 function onOpen() {
   var sheet = SpreadsheetApp.getActive();
 
