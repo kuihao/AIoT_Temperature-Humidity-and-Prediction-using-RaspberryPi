@@ -17,7 +17,6 @@ function auto_exection(){
   get_history_humidity();
 }
 
-// when open the google sheet, add a botton 'Ubidots' in tool bar
 function onOpen() {
   var sheet = SpreadsheetApp.getActive();
 
@@ -53,7 +52,7 @@ function get_newest_data(){
 
   for (var i = 0, l = obj.length; i < l; i++) {
     var date = new Date(obj[i].last_activity)
-    sheet.appendRow([obj[i].name, date, obj[i].last_value.value, obj[i].unit]);
+    sheet.appendRow([date, obj[i].name, obj[i].last_value.value/*, obj[i].unit*/]);
   }
 }
 
@@ -79,7 +78,7 @@ function get_history_temperature(){
 
   for (var i = 0, l = obj.length; i < l; i++) {
     var date = new Date(obj[i].timestamp)
-    sheet.appendRow([date, obj[i].value, obj[i].context]);
+    sheet.appendRow([date, obj[i].value/*, obj[i].context*/]);
   }
 }
 
@@ -105,6 +104,6 @@ function get_history_humidity(){
 
   for (var i = 0, l = obj.length; i < l; i++) {
     var date = new Date(obj[i].timestamp)
-    sheet.appendRow([date, obj[i].value, obj[i].context]);
+    sheet.appendRow([date, obj[i].value/*, obj[i].context*/]);
   }
 }
