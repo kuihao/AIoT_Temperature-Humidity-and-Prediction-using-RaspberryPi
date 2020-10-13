@@ -53,11 +53,11 @@ def post_request(payload):
 
     # Processes results
     if status >= 400:
-        print("[ERROR] Could not send data after 5 attempts, please check \
-            your token credentials and internet connection")
+        print("[ERROR] Could not send data after 5 attempts, please check" 
+            "your token credentials and internet connection.")
         return False
 
-    print("[INFO] request made properly, your device is updated")
+    print("[INFO] request made properly, your device is updated.")
     return True
 
 # set Adafruit_DHT's varibles 
@@ -67,31 +67,45 @@ pin = 4
 '''
 Main Execting codes
 '''
-# write in csv with append mode
-with open('dht11_record.csv', 'a') as dhtfile:
-    # create a csv writer object
-    dhtwriter = csv.writer(dhtfile, dialect='excel')
-    # get sencor data from DHT11
-    try:
-        print('[INFO]press Ctrl-C to abort the process.')
-        while True:
-            # Get sensor data.  Use the read_retry method which will retry up
-            # to 15 times to get a sensor reading (waiting 2 seconds between each retry).
-            humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
-            # Checking sensor dedect correctly
-            if humidity is not None and temperature is not None:
-                print('[SENSOR]Temperature={0:0.1f}*C Humidity={1:0.1f}%'.format(temperature, humidity))
-                # function: write [datetime, temperature, humidity] in csv
-                WriteInCSV(dhtwriter, temperature, humidity)
-                # function: build ubidots payload
-                payload = build_payload(
-                    VARIABLE_LABEL_1, VARIABLE_LABEL_2, temperature, humidity)
-                print("[INFO] Attemping to send data.")
-                # function: exec post_request
-                post_request(payload)
-                print("[INFO] Post finished.")
-            else:
-                print('[ERROR]Failed to get reading. Try again!')
-            time.sleep(3600)
-    except KeyboardInterrupt:
-        print('[INFO]Abort!')
+# get sencor data from DHT11
+try:
+    print('[INFO]press Ctrl-C to abort the process.')
+    while True:
+        # Get sensor data.  Use the read_retry method which will retry up
+        # to 15 times to get a sensor reading (waiting 2 seconds between each retry).
+        humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+        # Check sensor detecting correctly
+        if humidity is not None and temperature is not None:
+            print('[SENSOR]Temperature={0:0.1f}*C Humidity={1:0.1f}%'.format(temperature, humidity))
+            
+            # Record in CSV
+            flag = True
+            while flag:
+                try:
+                    # write in csv with append mode
+                    dhtfile = open('dht11_record.csv', 'a')
+                    # create a csv writer object
+                    dhtwriter = csv.writer(dhtfile, dialect='excel')  
+                    # function: write [datetime, temperature, humidity] in csv
+                    WriteInCSV(dhtwriter, temperature, humidity)
+                    flag = False
+                except:
+                    print("[ERROR]CSV.write failed. Try again!")
+                    flag = True
+                finally:
+                    dhtfile.close()
+                    
+            # function: build ubidots payload
+            payload = build_payload(
+                VARIABLE_LABEL_1, VARIABLE_LABEL_2, temperature, humidity)
+            # posting data to ubidots cloud
+            print("[INFO] Attemping to send data.")
+            # function: exec post_request
+            post_request(payload)
+            print("[INFO] Post finished.")
+        else:
+            print('[ERROR]DHT.read failed. Try again!')
+            continue
+        time.sleep(3600)
+except KeyboardInterrupt:
+    print('[INFO]Abort!')
