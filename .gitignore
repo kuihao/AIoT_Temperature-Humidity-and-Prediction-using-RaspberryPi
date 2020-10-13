@@ -1,1 +1,5 @@
 test_ST_ubidots.py
+token.pickle
+DHT11_NewestData.csv
+DHT11_HistoryTemperatrue.csv
+DHT11_HistoryHumidity.csv
