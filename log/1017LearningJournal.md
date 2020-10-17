@@ -4,10 +4,22 @@
     * 使用Python Module **pandas**的*pandas.read_csv* 讀取CSV檔案，以*DataFrame*型態存取
         * [補充] *pandas*有兩種資料結構：
             1. DataFrame 就是一張表格(table)
+                * Function: *pd.DataFrame(<dict>)*
+                * 添加一列至DataFrame: 令df1, df2為DataFrame，且ser為某Series，則
+                  df1['<new column index(key)>'] = ser
+                  df1['<new column index(key)>'] = df2['<any column index(key)>']
+                * DataFrames彼此合併: *df3 = pd.concat([df1, df2], axis=0)* 
+                  矩陣中axis=0是水平線(列)、axis=1是鉛直線(行)
+
             2. Series 就是單欄(column)或是單列(row)的所有資料
+                * Function: *pd.Series([data1, data2, data3])*
     * *<data>.iloc[:,:].values* 取得*DataFrame*中特定範圍的資料，以*Module: Numpy*的*ndarray*型態存成二維陣列，其中陣列資料是以String型態儲存
 2. 資料清洗
     * 檢查空值: 使用Function *info()* 可以觀察每一欄Non-Null(非空值)的數量，進而得知哪幾欄有空值
+    * 空值找尋: *pd.isnull()* 檢查DataFrame對象中的空值，並返回一個Boolean數組
+    * 模糊搜尋: *.str.contains('<str1>|<str2>')*
+    * 空值填補: *df.fillna(x)* 用x替換DataFrame對象中所有的空值
+    * 批量取代: *s.replace([1,3],['one','three'])* 用'one'代替1，用'three'代替3
 3. 資料預處理
     * 資料分割
 * 補充
@@ -45,3 +57,4 @@
     * 環保署空氣品質監測網-空氣公開數據: https://airtw.epa.gov.tw/CHT/Themes/LinkOut.aspx
     * Data Science Example: https://medium.com/jameslearningnote/%E8%B3%87%E6%96%99%E5%88%86%E6%9E%90-%E6%A9%9F%E5%99%A8%E5%AD%B8%E7%BF%92-%E7%AC%AC4-1%E8%AC%9B-kaggle%E7%AB%B6%E8%B3%BD-%E9%90%B5%E9%81%94%E5%B0%BC%E8%99%9F%E7%94%9F%E5%AD%98%E9%A0%90%E6%B8%AC-%E5%89%8D16-%E6%8E%92%E5%90%8D-a8842fea7077
     * Data Preprocession: https://medium.com/@doremi31618/%E6%A9%9F%E5%99%A8%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98-%E6%95%B8%E6%93%9A%E9%A0%90%E8%99%95%E7%90%8601-ae90853978da
+    * 數據處理函式整理: https://www.twblogs.net/a/5c12a387bd9eee5e4183d8b8
