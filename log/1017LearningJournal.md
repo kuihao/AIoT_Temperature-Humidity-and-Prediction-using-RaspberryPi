@@ -9,7 +9,7 @@
                   df1['<new column index(key)>'] = ser
                   df1['<new column index(key)>'] = df2['<any column index(key)>']
                 * DataFrames彼此合併: *df3 = pd.concat([df1, df2], axis=0)* 
-                  矩陣中axis=0是水平線(列)、axis=1是鉛直線(行)
+                  矩陣中axis=0是水平線(新增欄)、axis=1是鉛直線(新增列)
 
             2. Series 就是單欄(column)或是單列(row)的所有資料
                 * Function: *pd.Series([data1, data2, data3])*
