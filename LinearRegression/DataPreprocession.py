@@ -1,6 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt #畫出圖型 
 import pandas as pd #資料處理
+import datetime
 #import sklearn
 pd.set_option("display.max_rows", 1000)    #設定最大能顯示1000rows
 pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
@@ -74,8 +75,70 @@ for col_name in temp_slice.columns:
 #print('Merged\n', dataset_full)
 # 確認DataFrame正確合併 # for col in temp_slice.columns:print(dataset_full[dataset_full[col] >= 666].loc[:, col])
 # 資料清洗完畢
-def OutputCSV():   
-    Path = 'LinearRegression\TrainingData_2019_Pinzhen\CleanData_2019_PingZhen.csv'
-    dataset_full.to_csv( Path, index=False )
+def OutputCSV(dataframe, FileName):   
+    Path = ('LinearRegression\TrainingData_2019_Pinzhen\\'+FileName)
+    dataframe.to_csv( Path, index=False )
     print( '成功產出: ' + Path )
-# 匯出查看 # OutputCSV()
+# 匯出查看 # OutputCSV(dataset_full, CleanData_2019_PingZhen.csv)
+'''
+分類數據
+'''
+'''
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+# 對分類資料進行fit、transform並取代之，有序、具四則計算意義的Quantitative Data就保持
+labelencoder = LabelEncoder()
+dataset_full['日期'] = labelencoder.fit_transform(dataset_full['日期'])
+dataset_full['測項'] = labelencoder.fit_transform(dataset_full['測項'])
+# print(dataset_full.iloc[35:45, 2:5])
+'''
+'''
+# 針對無序的Qualitative Data(屬性資料)需要進一步分類，此類資料為名義尺度
+# BUG: sklearn.preprocessing.OneHotEncoder自v2.2起調整了許多參數，連官方文件都沒一致，
+# 目前搜尋結果要使用ColumnTransformer，但怎麼試都未成功
+# 因此改用pandasas的get_dummies()
+data_dum = pd.get_dummies(dataset_full['測項'])
+print(pd.DataFrame(data_dum))
+'''
+'''
+['AMB_TEMP', 'CO', 'NO', 'NO2', 'NOx', 'O3',
+'PM10', 'PM2.5', 'RAINFALL', 'RH', 'SO2', 'WD_HR', 
+'WIND_DIREC', 'WIND_SPEED', 'WS_HR']
+'''
+'''
+分割資料為訓練集、測試集
+規則：每個月的前 20 天所有資料為Train set，剩下的資料取樣出來為Test set
+'''
+from datetime import datetime
+dataset_full['日期'] = pd.to_datetime(dataset_full['日期'])
+'''
+print(  dataset_full[
+                    (dataset_full['日期']>=datetime.strptime("2019-01-21", "%Y-%m-%d")) &
+                    (dataset_full['日期']<datetime.strptime("2019-02-01", "%Y-%m-%d"))
+    ])
+'''
+train_data = pd.DataFrame()
+for month in range(1, 13):
+    temp_datas = dataset_full[
+        (dataset_full['日期']>=datetime.strptime("2019-"+str(month)+"-01", "%Y-%m-%d")) &
+        (dataset_full['日期']<=datetime.strptime("2019-"+str(month)+"-20", "%Y-%m-%d"))
+    ]
+    train_data = pd.concat([train_data, temp_datas], axis=0, ignore_index=True)
+# print(train_data)
+# 匯出訓練資料# OutputCSV(train_data, 'TrainData_2019_PingZhen.csv')
+test_data = pd.DataFrame()
+for month in range(1, 13):
+    if month <= 11:
+        temp_datas = dataset_full[
+            (dataset_full['日期'] >= datetime.strptime("2019-"+str(month)+"-21", "%Y-%m-%d")) &
+            (dataset_full['日期'] < datetime.strptime("2019-"+str(month+1)+"-01", "%Y-%m-%d"))
+        ]
+        test_data = pd.concat([test_data, temp_datas], axis=0, ignore_index=True)
+    else:
+        temp_datas = dataset_full[
+            (dataset_full['日期'] >= datetime.strptime("2019-12-21", "%Y-%m-%d")) &
+            (dataset_full['日期'] <= datetime.strptime("2019-12-31", "%Y-%m-%d"))
+        ]
+        test_data = pd.concat([test_data, temp_datas], axis=0, ignore_index=True)
+# print(test_data)
+# 匯出測試資料 # OutputCSV(test_data, 'TestData_2019_PingZhen.csv')
