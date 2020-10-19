@@ -60,7 +60,8 @@ for month in range(12):
 # print(y)
 '''
 [Normalize (1)]
-
+標準化：測量一組數值的離散程度使用 mean(x) 平均值、Standard Deviation 標準差
+正歸化：x_normalized = x - min(x) / max(x) - min(x)
 '''
 mean_x = np.mean(x, axis = 0) #15 * 9: axis = 0 是取欄方向12 * 471的資料算 Mean，因此會有 15 * 9 個值 
 std_x = np.std(x, axis = 0) #15 * 9 
@@ -98,6 +99,34 @@ y_validation = y[math.floor(len(y) * 0.8): , :]
 eps 項是避免 adagrad 的分母為 0 而加的極小數值。
 每一個 dimension (dim) 會對應到各自的 gradient, weight (w)，
 透過一次次的 iteration (iter_time) 學習。
+
+# -----以下筆記----- #
+
+# 假設 Function Model
+假設預測值為 Y_p，輸入的 9小時 * 15個 Features 為 X_i，
+每個時空的 Feature 都獨立，故 i 為 9 * 15 = 135
+Y_p = bias + w1 * X1 + w2 * X2 + ... + w15 * X15
+    = bias + Summation_i^135(w_i * X_i)
+
+# Loss Function (損失函數) 的製作：可用任何合理的方式評斷Function預測效果的優劣
+  課堂教導的方法是用類似統計學的 Variance (變異數) 做評估
+  * Variance 變異數 就是每一個觀察值與平均數的的距離平方和的平均
+  * 此將 Variance 的平均離均差特性視為「估計誤差」，輸入資料的個數就是 Training datas 的總數，
+    特別之處在於這裡 Variance 的「均數」也就是指估計誤差的Label值是要隨著不同組 Training data 而
+    變動的，並非傳統離均差有一個固定的均值。
+  * 總結此 Loss Function 輸入 (w, b) 即 Function 的一組係數、Training datas 的 Input 及 Output，
+    輸出的 Loss 值為「Label事實和預測結果之間的均方差」
+  * 目標是調整輸入的參數 (w, b) ，找到夠小的 Loss 值，就是最佳 Function參數，
+    調整參數這件事情不用手動調，也不是暴力法直接開，此題可以用線性代數解出 Close Form，
+    也能使用 Gradient descent 來做。
+
+# Gradient descent (梯度下降法)
+  * 目的：為 Loss Function 找到比較好的參數 W，使 Loss(W) 值最小。
+  * 限制：所定義的 Loss Function 必需可微分
+  * 實作：隨機令 W 初值，計算 W 對 Loss Function 的微分值 d，
+    若 d 是正數 (斜率為正) 下一輪就減少 W，反之 d 為負數，則在下一輪增加 W 的值。
+  * 公式：賦予一個 weight 值 (稱為Learning rate，代號是 η /Eta/) 來調整下一輪該
+    增加/減少 W 多少值 (以此提升調整參數的效率)。令 W' 為下一輪參數值，公式為 {W' = W - Eta * d}
 '''
 dim = 15 * 9 + 1 # 因為常數項的存在，所以 dimension (dim) 需要多加一欄
 w = np.zeros([dim, 1]) 
@@ -118,9 +147,9 @@ np.save('weight.npy', w)
 w
 '''
 [Testing]
+# 這240項資料應該是萃取完後隨機取出的，資料的萃取工作暫時跳過，目前用Excel隨機選取資料代替
 載入 test data，並且以相似於訓練資料預先處理和特徵萃取的方式處理，
 使 test data 形成 240 個維度為 15 * 9 + 1 的資料。
-這240項應該是萃取完後隨機取出的
 '''
 testdata = pd.read_csv('LinearRegression\TrainingData_2019_Pinzhen\EASY_TEST.csv', header = None, encoding = 'utf-8')
 test_data = testdata.iloc[:, 1:10]
@@ -138,6 +167,9 @@ test_x
 #print(test_x)
 '''
 [Prediction]
+現在我們已定出Model(預測模型, Functuon set)、
+找到自認完美Function的係數組合、選好了測試資料集，
+那就能進行預測了～
 '''
 w = np.load('weight.npy')
 ans_y = np.dot(test_x, w)
@@ -156,3 +188,8 @@ with open('PredictionResult.csv', mode='w', newline='') as submit_file:
         row = ['id_' + str(i), ans_y[i][0]]
         csv_writer.writerow(row)
         print(row)
+'''
+[Function的改善]
+用各式 Model 比較輸入 validation_set 預估結果的 Average Error 來選擇更好的 Model
+切勿用 Testing data 來做篩選，否則會導致 Model 預測 Private Test data 的結果變差
+'''

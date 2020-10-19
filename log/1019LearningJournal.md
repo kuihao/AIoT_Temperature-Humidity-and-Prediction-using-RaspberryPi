@@ -35,6 +35,16 @@
         * 平均風向：以整個小時的風向向量平均
         * μg/m3為微克/立方公尺
         * ppb為百萬分之一
+## Loss Function的製作：
+* 可用**任何合理的方式**評斷 Function 預測效果的優劣
+* 課堂教導的方法是用類似統計學的 Variance (變異數) 做評估
+    * **Variance 變異數** 是「使用全部資料」做離散程度評估的方法，其意義是<br>
+      每一個觀察值x_i(數據、樣本)與平均數的x_bar(或Mu)的「距離平方和的平均(平均離均差、平均離差)」<br>
+      其中，「取平方」的意義是為了將差值**取正值**，這樣會比取絕對值方便計算。
+* 套用在此就是將Label值(真實解答，視其為x_bar的角色)與每個預估值(視為x_i的角色)相差，<br>
+  也就是「**估計誤差**」的意思。
+* 對於 Simple variance (抽樣變異數) 取平均的數值須為「總數減1 (n-1)」，如此才能不偏估計。
+* **Standard deviation 標準差** 就是變異數的平方根，數值單位和觀測值視相同的，因此更便於理解
 ##　疑問：
 * 為何訓練資料要切割成12個月，而非每個月串在一起，用年做分割?
 * 為何Line 55要做reshape(1, -1)?
@@ -46,6 +56,11 @@
 * 以上 print 的部分主要是為了看一下資料和結果的呈現，拿掉也無妨。另外，在自己的 linux 系統，可以將檔案寫死的的部分換成 sys.argv 的使用 (可在 terminal 自行輸入檔案和檔案位置)。
 * 本作業學習自：https://colab.research.google.com/drive/131sSqmrmWXfjFZ3jWSELl8cm0Ox5ah3C#scrollTo=Y54yWq9cIPR4
 
-最後，可以藉由調整 learning rate、iter_time (iteration 次數)、取用 features 的多寡(取幾個小時，取哪些特徵欄位)，甚至是不同的 model 來超越 baseline。
+# 助教留言
+* 最後，可以藉由調整 learning rate、iter_time (iteration 次數)、取用 features 的多寡(取幾個小時，取哪些特徵欄位)，甚至是不同的 model 來超越 baseline
 
-Report 的問題模板請參照 : https://docs.google.com/document/d/1s84RXs2AEgZr54WCK9IgZrfTF-6B1td-AlKR9oqYa4g/edit
+# 明天的工作
+1. 再順一遍 Code 理解每個細節(LR function code 內部構造、Gradient descent微分、最終Average error呈現、輸出檔案的位置擺放)
+2. 萃取 Testing Data
+3. 嘗試使用 Validation_set 調整新的 Model
+4. 觀看 Gradient descent 的影片更加了解原理
