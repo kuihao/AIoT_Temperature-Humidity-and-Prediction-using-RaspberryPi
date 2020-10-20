@@ -43,3 +43,8 @@
 - 輸出正常，目前測試資料 PM2.5 的平均誤差值是 0.0645(測試240組資料，資料的選擇非完全隨機)
 ## 這星期的學習筆記(10/12-10/19)
 - https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/tree/master/log
+
+## 程式碼
+* 預處理的程式碼：https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/LinearRegression/DataPreprocession.py
+
+* Linear Regression的程式碼：https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/LinearRegression/LinearRegression.py
