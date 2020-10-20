@@ -20,7 +20,7 @@ data = data.iloc[:, 3:]
 # data[data == 'NR'] = 0
 raw_data = data.to_numpy()
 '''
-[Extract Features (1)] 以 12 個月的 15 個Features (共180項) 為列，小時為欄
+[Extract Features (1)] 以 12 個月的 15 個 Features (共180項) 為列，小時為欄
 將原始數據 3600 (筆) * 24 (hours) 依照月份重新分組成 12 個 15 (features) * 480 (hours) 的資料
 '''
 month_data = {}
@@ -83,8 +83,8 @@ for i in range(len(x)): #12 * 471
 x
 # print(x)
 '''
-[Split Training Data Into "train_set" and "validation_set"]
-train_set用來訓練，validation_set不會被放入訓練、只是用來驗證
+[Split Training Data Into ]
+train_set用來訓練，validation_set不會被放入"train_set" and "validation_set"訓練、只是用來驗證
 '''
 import math
 x_train_set = x[: math.floor(len(x) * 0.8), :]
