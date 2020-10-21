@@ -26,45 +26,45 @@ import pandas as pd
   * 先用 plt.contour (不是 plt.contourf)
 '''
 '''
-簡單的表格點繪製
+# 簡單的表格點繪製
+ * # x = np.array([0,1,2,3,4,5])
+ * # y = np.array([0,2,4,6,8,10])
+ * # Z =  np.zeros((len(y), len(x)))   # len(y) rows, len(x) cols
+ * # X, Y = np.meshgrid(x, y)
+ * # X = X.astype('float32')
+ * # for i in range(6):
+ * #     X[i][5] = 0.5
+ * # print(X, '\n', Y)
+ * # plt.plot(X, Y, marker="o", color="red", linestyle="none")
+ * # plt.show()
 '''
-# x = np.array([0,1,2,3,4,5])
-# y = np.array([0,2,4,6,8,10])
-# Z =  np.zeros((len(y), len(x)))   # len(y) rows, len(x) cols
-# X, Y = np.meshgrid(x, y)
-# X = X.astype('float32')
-# for i in range(6):
-#     X[i][5] = 0.5
-# print(X, '\n', Y)
-# plt.plot(X, Y, marker="o", color="red", linestyle="none")
-# plt.show()
 '''
-彩色等高線繪圖練習 plt.contourf()
+# 彩色等高線繪圖練習 plt.contourf()
+ * ## 高度函數(此為圓方程式)
+ * #def f(x,y):
+ * #    return ( x**2 +  y**2)
+ * #
+ * ## 建立網格
+ * #n = 1000
+ * #x = np.linspace(-50, 50, n)
+ * #y = np.linspace(-50, 50, n)
+ * #X,Y = np.meshgrid(x, y)
+ * #
+ * #
+ * ## 繪製等高線圖
+ * ## 第四個參數 10 決定了這張圖上要有幾層的等高線，數字越大，圖面上等高線的密度就會越高
+ * ## 第五個參數 alpha 決定顏色的透明度
+ * ## 第六參數 cmap，也就是 colormap，決定了等高線圖的顏色組成
+ * ## 除了 jet 還有更多 colormap 的可用參數: 
+ * ## https://matplotlib.org/2.0.2/examples/color/colormaps_reference.html
+ * ## 上底色
+ * #plt.contourf(X, Y, f(X, Y), 8, alpha=.6, cmap=plt.cm.jet)
+ * ## 畫線
+ * #C = plt.contour(X, Y, f(X, Y), 8, colors='black')
+ * ## 等高線上數值 (label)
+ * #plt.clabel(C, inline=True, fontsize=10)
+ * #plt.show()
 '''
-## 高度函數(此為圓方程式)
-#def f(x,y):
-#    return ( x**2 +  y**2)
-#
-## 建立網格
-#n = 1000
-#x = np.linspace(-50, 50, n)
-#y = np.linspace(-50, 50, n)
-#X,Y = np.meshgrid(x, y)
-#
-#
-## 繪製等高線圖
-## 第四個參數 10 決定了這張圖上要有幾層的等高線，數字越大，圖面上等高線的密度就會越高
-## 第五個參數 alpha 決定顏色的透明度
-## 第六參數 cmap，也就是 colormap，決定了等高線圖的顏色組成
-## 除了 jet 還有更多 colormap 的可用參數: 
-## https://matplotlib.org/2.0.2/examples/color/colormaps_reference.html
-## 上底色
-#plt.contourf(X, Y, f(X, Y), 8, alpha=.6, cmap=plt.cm.jet)
-## 畫線
-#C = plt.contour(X, Y, f(X, Y), 8, colors='black')
-## 等高線上數值 (label)
-#plt.clabel(C, inline=True, fontsize=10)
-#plt.show()
 '''
 課堂測試數據Demo
 程式碼參考：https://colab.research.google.com/drive/1l_2jQ2t6FEPwTB6G7kiIFNOLRJOFU8LF?usp=sharing#scrollTo=TOAvOQ09fffp
@@ -106,9 +106,9 @@ for i in range(len(x)):
 w = -4
 b = -120
 # 決定 learning rate
-lr = 0.0000001 #0.00005
+lr = 0.0000001 
 # 決定 iteration 的次數
-iteration = 100000 #10000
+iteration = 100000 
         # v2 - ada
         # b_lr = 0.0
         # w_lr = 0.0
@@ -145,7 +145,7 @@ for i in range(iteration):
 # 建立等高線圖
 plt.contourf(x,y,Z, 50, alpha=0.5, cmap=plt.get_cmap('jet'))
 # 繪製目標點(隱藏的)
-# plt.plot([-188.4], [2.67], 'x', ms=12, markeredgewidth=3, color='red')
+plt.plot([-188.4], [2.67], 'x', ms=12, markeredgewidth=3, color='red')
 # 繪製起點
 plt.plot([b_history[0]], [w_history[0]], 's', ms=12, markeredgewidth=3, color='orange')   # starting parameter
 # 繪製 w,b iteration 的結果
@@ -158,7 +158,16 @@ plt.ylim(-5,5)
 # 繪製 x 軸與 y 軸的標籤
 plt.xlabel(r'$b$', fontsize=16)
 plt.ylabel(r'$w$', fontsize=16)
+
+fig = plt.figure()
+paint = fig.add_subplot()
+plt.plot(x_data, y_data, 'o', c='blue')
+x_pos = np.linspace(0, 610, 600)
+y_pos = w_history[-1] * x_pos + b_history[-1] 
+plt.plot(x_pos, y_pos)
+
 plt.show()
+# print(b_history[-1], w_history[-1])
 
 # step 7. 結果出爐
 # 圖形上的每個黑點，都代表著我們的每一步。我們看到這些黑點從 b = 0 & a = 0（也就是圖形的原點）開始向 1 點鐘方向前進。根據我們對等高線的理解，這樣子切過一條又一條的等高線，不是在上升就是在下降。
