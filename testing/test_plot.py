@@ -81,19 +81,25 @@ x_data = [ 338., 333., 328., 207., 226., 25., 179., 60., 208.,  606.]
 y_data = [ 640., 633., 619., 393., 428., 27., 193., 66., 226., 1591.]
 
 # step 2.5. 假設模型 例如：y_data = w * x_data + b
-# step 3. 建立網格資料
+# step 3. 建立網格資料 
+# 繪製的「彩色的等高線圖就是 Loss Function Space」，兩個維度分別代表參數 w 與 b
+# 以下的 x, y 並不是指訓練資料，而是 Linear Model 的兩個參數 (w, b) 的自行設定的可能範圍
 # 分別建立兩個一維等差陣列 x 與 y，其範圍是 # 到 #，每隔 # 產生一個值。
 x = np.arange(-200,-100,1) #bias shape:(100,) 
-y = np.arange(-5,5,0.1) #weight shape:(100,) # plt.axis([-200, -100, -5, 5])
-# 接著，我們建立了一個二維陣列 Z 來儲存每一個 X[n], Y[n] 位置上的損失函數
+y = np.arange(-5,5,0.1) #weight shape:(100,) 
+# 接著，我們建立了一個二維陣列 Z 來儲存每一個 X[n](bias), Y[n](weight) 位置上的「損失函數值」
+# 注意陣列 Z 的存取，根據 pyplot 定義的參數，它會直接將矩陣內容繪製在畫布上，
+# 因此 x, y 座標跟矩陣儲存示正好相反的 (y對應矩陣的列, x對應矩陣的行)， Z[y座標][x座標]
 # 損失函數 L 為 L(a, b) = ((y_data[n] - (w*x_data[n] + b) )**2)/n
 Z =  np.zeros((len(x), len(y)))
 X, Y = np.meshgrid(x, y)
 for i in range(len(x)):
     for j in range(len(y)):
+        # Z 矩陣相當於整張圖，每個 Entry 存放座標 (b, w) 代入損失函數的 Loss 值
         b = x[i]
         w = y[j]
         Z[j][i] = 0
+        # 將所有訓練資料帶入計算該座標 (b, w)的 Loss 值
         for n in range(len(x_data)):
             Z[j][i] = Z[j][i] +  (y_data[n] - (w*x_data[n] + b))**2
         Z[j][i] = Z[j][i]/len(x_data)
@@ -143,22 +149,26 @@ for i in range(iteration):
 
 # strp 6. 繪圖
 # 建立等高線圖
-plt.contourf(x,y,Z, 50, alpha=0.5, cmap=plt.get_cmap('jet'))
+plt.contourf(x,y,Z, 50, alpha=0.5, cmap=plt.get_cmap('jet')) # Contour line Region = 50
 # 繪製目標點(隱藏的)
 plt.plot([-188.4], [2.67], 'x', ms=12, markeredgewidth=3, color='red')
 # 繪製起點
 plt.plot([b_history[0]], [w_history[0]], 's', ms=12, markeredgewidth=3, color='orange')   # starting parameter
 # 繪製 w,b iteration 的結果
-plt.plot(b_history, w_history, 'o-', ms=3, lw=1.5, color='black')
+plt.plot(b_history, w_history, 'o-', ms=3, lw=1.5, color='black') # ms = markersize, lw = linewidth 
 # 繪製結束時的參數
 plt.plot([b_history[-1]], [w_history[-1]], 'x', ms=12, markeredgewidth=3, color='orange')   # ending parameter
 # 定義圖形範圍
 plt.xlim(-200,-100)
-plt.ylim(-5,5)
+plt.ylim(-5,5) # plt.axis([-200, -100, -5, 5])
 # 繪製 x 軸與 y 軸的標籤
 plt.xlabel(r'$b$', fontsize=16)
 plt.ylabel(r'$w$', fontsize=16)
+# 標上等高線數值
+C = plt.contour(x, y, Z, 10, colors='black', linewidths=0.05)
+plt.clabel(C, inline=True, fontsize=10)
 
+# 畫出訓練資料與 Linear Function 的關係圖
 fig = plt.figure()
 paint = fig.add_subplot()
 plt.plot(x_data, y_data, 'o', c='blue')

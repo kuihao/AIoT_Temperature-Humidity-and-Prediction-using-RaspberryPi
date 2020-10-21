@@ -1,6 +1,17 @@
 # 2020/10/21
 * **學習繪製 plot 視覺化判斷目前參數及函數模型的好壞**
     * 練習的程式碼：https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/testing/test_plot.py
+    * **等值線 (Contour line)**
+        * **plt.contourf(*args, data=None, **kwargs)[source]**
+        * contour([X, Y,] Z, [levels], **kwargs)
+        * X, Yarray-like, optional
+            * The coordinates of the values in Z.
+        * **Z array-like(N, M)**
+            * **The height values over which the contour is drawn.**
+        * **levelsint (欲等分切割成幾個區域)** or array-like, optional
+            * **Determines the number and positions of the contour lines / regions.**
+* 顯然 Linear Regression的方式是針對所有輸入的訓練資料，假設一個Linear Function之後，直接找尋一個最貼合資料預測結果的參數組合，這個參數的調整方法其實像是試錯，但是針對窮舉所有參數是不可能算完的，因此有Gradient descent及輔助Gradient descent的Optimizer可以提升找尋預測Error最小參數的效率
+
 * 矩陣與矩陣相乘
     * 使用 **ndarray** 的 *.dot()* 方法或者 *np.dot()*
 * 單位矩陣(Identity Matrix)
