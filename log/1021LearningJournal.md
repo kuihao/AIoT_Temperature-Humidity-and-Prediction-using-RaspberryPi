@@ -1,4 +1,6 @@
 # 2020/10/21
+* **學習繪製 plot 視覺化判斷目前參數及函數模型的好壞**
+    * 練習的程式碼：https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/testing/test_plot.py
 * 矩陣與矩陣相乘
     * 使用 **ndarray** 的 *.dot()* 方法或者 *np.dot()*
 * 單位矩陣(Identity Matrix)
