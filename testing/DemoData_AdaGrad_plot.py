@@ -36,7 +36,7 @@ for i in range(len(x)):
         # 將所有訓練資料帶入計算該座標 (b, w)的 Loss 值
         for n in range(len(x_data)):
             Z[j][i] = Z[j][i] +  (y_data[n] - (w*x_data[n] + b))**2
-        Z[j][i] = Z[j][i]/len(x_data)
+        Z[j][i] = np.sqrt(Z[j][i]/len(x_data))
 
 # step 4. 決定參數
 # 這裡決定 w 與 b 的起始點（從哪裡開始走）、learning rate（每一步走多遠）、
@@ -46,17 +46,23 @@ for i in range(len(x)):
 w = -4
 b = -120
 # 決定 learning rate
-lr = 100 # 0.0000001 
+#lr = 1 # 0.0000001 
+
 # 決定 iteration 的次數
 iteration = 100000 
 
 # 給予 b, w 各自不同的 learning rate
-b_lr = 0.0
-w_lr = 0.0
+b_lr = 10
+w_lr = 10
 
 # 儲存每一次 iterate 後的結果
 w_history = [w]
 b_history = [b]
+
+# Ada 的一些設定
+eps = 0 #0.0000000001
+b_HSE = 0
+w_HSE = 0
 
 # step 5. 執行梯度下降
 # 執行梯度下降
@@ -70,16 +76,16 @@ for i in range(iteration):
         w_grad = w_grad  + 2.0*(y_data[n] - (w*x_data[n] + b))*x_data[n]*(-1)
         b_grad = b_grad  + 2.0*(y_data[n] - (w*x_data[n] + b))*(-1.0)
         
-    # v2 - AdaGrad: learning rate 加上了梯度平方
-    b_lr = b_lr + b_grad**2
-    w_lr = w_lr + w_grad**2
+    # v2 - AdaGrad: HSE 是自定義的名字，是 Historical Sum Square 的縮寫
+    b_HSE = b_HSE + b_grad**2
+    w_HSE = w_HSE + w_grad**2
 
     # 更新 w, b 位置 
     # w = w - lr * w_grad
     # b = b - lr * b_grad
     # v2 - ada
-    b = b - lr/np.sqrt(b_lr) * b_grad 
-    w = w - lr/np.sqrt(w_lr) * w_grad
+    b = b - b_lr/np.sqrt(b_HSE + eps) * b_grad 
+    w = w - w_lr/np.sqrt(w_HSE + eps) * w_grad
     
     # 紀錄 w, b 的位置 
     w_history.append(w)
