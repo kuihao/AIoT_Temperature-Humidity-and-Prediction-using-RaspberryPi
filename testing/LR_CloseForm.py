@@ -29,7 +29,7 @@ y_prime_i = a * x_i + b 的 SSE 公式為【 (Σ_i^n(y_i - y_prime_i) **2) / n �
 其實微分就是計算切線斜率。
 '''
 # 解二元一次的 Loss Function (此為 SSE)，只要解「參數對SSE趨近於零」的微分值即可
-def Loss(a, b):
+def SGD_Loss(a, b):
     # 先算好 mean(x_i), mean(y_i)
     mean_x_i = np.mean(x_i)
     mean_y_i = np.mean(y_i)
@@ -47,7 +47,7 @@ def Loss(a, b):
     return payload
 a = 0
 b = 0
-parameter = Loss(a, b)
+parameter = SGD_Loss(a, b)
 a = parameter[0]
 b = parameter[1]
 print(  'a:', a, 
@@ -58,4 +58,5 @@ x_pos = np.linspace(0, 610, 600)
 y_pos = (a * x_pos) + b
 plt.plot(x_pos, y_pos)
 
+print('Loss: ', np.sqrt(np.sum(np.power(( np.dot(x_i, a)+b ) - y_i, 2))/len(x_i)))
 plt.show()

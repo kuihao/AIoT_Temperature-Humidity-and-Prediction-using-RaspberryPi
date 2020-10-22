@@ -46,7 +46,7 @@ for i in range(len(x)):
 w = -4
 b = -120
 # 決定 learning rate
-lr = 1 # 0.0000001 
+lr = 100 # 0.0000001 
 # 決定 iteration 的次數
 iteration = 100000 
 
@@ -85,10 +85,15 @@ for i in range(iteration):
     w_history.append(w)
     b_history.append(b)
 
+    #-----文字紀錄 Loss(Error)值-----#
+    # loss = np.sqrt(np.mean(np.power(( np.dot(x_data, w)+b ) - y_data, 2)))
+    # print('Iteration = ', i, ' Loss = ', loss)
+    
+
 # strp 6. 繪圖
 # 建立等高線圖
 plt.contourf(x,y,Z, 50, alpha=0.5, cmap=plt.get_cmap('jet')) # Contour line Region = 50
-# 繪製目標點(隱藏的)
+# 繪製目標點(隱藏的，已由公式解證明此逼近最佳解)
 plt.plot([-188.4], [2.67], 'x', ms=12, markeredgewidth=3, color='red')
 # 繪製起點
 plt.plot([b_history[0]], [w_history[0]], 's', ms=12, markeredgewidth=3, color='orange')   # starting parameter
@@ -114,4 +119,7 @@ x_pos = np.linspace(0, 610, 600)
 y_pos = w_history[-1] * x_pos + b_history[-1] 
 plt.plot(x_pos, y_pos)
 
+loss_now = np.sqrt(np.sum(np.power(( np.dot(x_data, w)+b ) - y_data, 2))/len(x_data))
+print( loss_now, ' NOW' )
+print( 100.96372115561644, ' PERFECT' )
 plt.show()

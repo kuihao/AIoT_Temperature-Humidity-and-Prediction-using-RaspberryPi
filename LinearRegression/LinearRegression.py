@@ -150,16 +150,26 @@ adagrad = np.zeros([dim, 1]) # ??? K:就是每次更新的𝜂就是等於前一
 eps = 0.0000000001 # ???
 # print('iter_time & Loss\n')
 for t in range(iter_time):
-    loss = np.sqrt(np.sum(np.power(np.dot(x, w) - y, 2))/471/12) #rmse(root-mean-square deviation) #Loss Function #矩陣相乘: [(12*471)*(1+15*9)] dot [(1+15*9)*1]=[(12*471)*(1)] # 此Loss值是開根號的標準差
-    # if(t%100==0):
-    #     print(str(t) + ":" + str(loss))
-    gradient = 2 * np.dot(x.transpose(), np.dot(x, w) - y) #dim*1 # w(內涵bias)對Loss func.裡的「均方誤差部分」作微分
-    # 解釋gradient的運算：令訓練資料數為 item，令 features (15*9)*1二維矩陣為 dim，令 (np.dot(x, w) - y) 為 D，D是 item*1的矩陣，訓練資料 x 是 item*dim的矩陣，'^T'為取轉置運算
-    # w對均方誤差作微分，計算式是 2 * (矩陣D^T * 矩陣x)^T，得到一個 dim*1的結果，則依照轉置運算化簡就是變成 2*(矩陣x^T * 矩陣D)
+    # 解釋梯度 (gradient) 的運算：
+    #   令 資料的數量為 item = 8,892  
+    #   令 features 的數量為 dim = 135
+    #   令 訓練資料為 x，二維矩陣 (item*dim)
+    #   令 參數(權重值，內涵 Bias)為 w，二維矩陣 (dim*1) 
+    #   令 Ground truth 為 y，二維矩陣 (item*1)
+    #   令 梯度 ( w 對 SSE (Sum Square Error, 誤差平方和) 趨近零的微分計算結果) 為 D = (np.dot(x, w) - y)，二維矩陣(item*1)
+    #   令 轉置矩陣運算子為 ^T
+    #   梯度運算的轉置簡化推導：2 * (矩陣D^T * 矩陣x)^T，得到一個 dim*1 的結果，依照轉置運算化簡變成 2*(矩陣x^T * 矩陣D)
+    gradient = 2 * np.dot( x.transpose(), (np.dot(x, w) - y) ) #dim*1
     # if(t==1):
     #     print(pd.DataFrame(gradient))
-    adagrad += gradient ** 2 # ???
+    
+    # 使用 AdaGrad
+    adagrad += gradient ** 2
     w = w - learning_rate * gradient / np.sqrt(adagrad + eps)
+    # 目前的 Loss 數值
+    loss = np.sqrt(np.sum(np.power(np.dot(x, w) - y, 2))/471/12) #rmse(root-mean-square deviation) #Loss Function #矩陣相乘: [(12*471)*(1+15*9)] dot [(1+15*9)*1]=[(12*471)*(1)]
+    if(t%100==0)|(t==iter_time-1):
+        print('Iter_time = '+ str(t), "Loss(error) = " + str(loss))
 np.save('LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
 w
 #print('Function Parameter:\n', pd.DataFrame(w))
