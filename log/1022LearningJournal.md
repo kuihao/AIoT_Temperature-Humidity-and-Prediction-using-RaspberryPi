@@ -1,5 +1,5 @@
 # 2020/10/22
-1. **分析差異** 多元線性回歸公式解 與 SGD (Stochastic gradient descent, 隨機梯度下降法)
+1. **分析差異** 多元線性回歸公式解 與 GD (Gradient descent, 梯度下降法)
 2. python 矩陣乘法
 3. **學習隨機梯度下降法**
 ## 多元線性回歸
