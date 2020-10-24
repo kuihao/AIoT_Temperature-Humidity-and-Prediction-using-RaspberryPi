@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt #畫出圖型
 import pandas as pd #資料處理
 import datetime
 #import sklearn
-pd.set_option("display.max_rows", 1000)    #設定最大能顯示1000rows
-pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
+#pd.set_option("display.max_rows", 1000)    #設定最大能顯示1000rows
+#pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
 
 '''
 # 匯入資料
 '''
 # dataset = pd.read_csv('./TrainingData_2019_Pinzhen/CSV_2019PingZhen.csv') # Command Line外部執行
-dataset = pd.read_csv('LinearRegression\TrainingData_2019_Pinzhen\CSV_2019PingZhen.csv') # VScode內部執行
+dataset = pd.read_csv(r'LinearRegression\RowData\Preprocession\CSV_2019PingZhen.csv') # VScode內部執行
 '''
 # 空值填寫、資料洗清
     原始資料註記說明：# 表示儀器檢核為無效值，* 表示程式檢核為無效值，x 表示人工檢核為無效值，
@@ -76,7 +76,7 @@ for col_name in temp_slice.columns:
 # 確認DataFrame正確合併 # for col in temp_slice.columns:print(dataset_full[dataset_full[col] >= 666].loc[:, col])
 # 資料清洗完畢
 def OutputCSV(dataframe, FileName):   
-    Path = ('LinearRegression\TrainingData_2019_Pinzhen\\'+FileName)
+    Path = ('LinearRegression\TestingData\\'+str(FileName))
     dataframe.to_csv( Path, index=False )
     print( '成功產出: ' + Path )
 # 匯出查看 # OutputCSV(dataset_full, CleanData_2019_PingZhen.csv)
@@ -127,6 +127,7 @@ for month in range(1, 13):
 # print(train_data)
 # 匯出訓練資料# OutputCSV(train_data, 'TrainData_2019_PingZhen.csv')
 test_data = pd.DataFrame()
+id_col = pd.DataFrame()
 for month in range(1, 13):
     if month <= 11:
         temp_datas = dataset_full[
@@ -134,11 +135,18 @@ for month in range(1, 13):
             (dataset_full['日期'] < datetime.strptime("2019-"+str(month+1)+"-01", "%Y-%m-%d"))
         ]
         test_data = pd.concat([test_data, temp_datas], axis=0, ignore_index=True)
+        
+        temp_col = pd.DataFrame(np.zeros(len(temp_datas)), columns=['id']).replace( 0, 'id_'+str(month))
+        id_col = pd.concat([id_col, temp_col], axis=0, ignore_index=True)
     else:
         temp_datas = dataset_full[
             (dataset_full['日期'] >= datetime.strptime("2019-12-21", "%Y-%m-%d")) &
             (dataset_full['日期'] <= datetime.strptime("2019-12-31", "%Y-%m-%d"))
-        ]
+        ] 
         test_data = pd.concat([test_data, temp_datas], axis=0, ignore_index=True)
+        
+        temp_col = pd.DataFrame(np.zeros(len(temp_datas)), columns=['id']).replace( 0, 'id_'+str(month))
+        id_col = pd.concat([id_col, temp_col], axis=0, ignore_index=True)
+test_data = pd.concat([id_col, test_data], axis=1, ignore_index=True)
 # print(test_data)
-# 匯出測試資料 # OutputCSV(test_data, 'TestData_2019_PingZhen.csv')
+# 匯出測試資料 # OutputCSV(test_data, 'TestData2_2019_PingZhen.csv')
