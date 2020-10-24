@@ -11,7 +11,7 @@ pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
 [Load Train Data(匯入訓練資料)]
 TrainData_2019_PingZhen.csv 的資料為 12 個月中，每個月取 20 天，每天 24 小時的資料(每小時資料有 18 個 features)
 '''
-data = pd.read_csv('LinearRegression\TrainingData_2019_Pinzhen\TrainData_2019_PingZhen.csv', encoding = 'utf-8')
+data = pd.read_csv(r'LinearRegression\TrainingData_2019_Pinzhen\TrainData_2019_PingZhen.csv', encoding = 'utf-8')
 '''
 [Preprocessing(資料預處理)]
 Column Name 'RAINFALL' 的 NR(No Rain) 全部改成 0 ......[已完成]
@@ -54,10 +54,24 @@ for month in range(12):
             # x 是輸入端，取 month_data [月][ 15個features全要, 遞增的9個小時(欄的總長度單位是20天換算小時計)]
             # 經過reshape，numphy可以廣播至x矩陣，且同類的feature會接續排列
             x[month * 471 + day * 24 + hour, :] = month_data[month][:,day * 24 + hour : day * 24 + hour + 9].reshape(1, -1) #vector dim:18*9 (9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9)
-            # y 是輸入端，取 month_data [月][ PM 2.5的項, 第10個小時(index起於0，故第10小時以9起)]
+            # y 是輸出端，取 month_data [月][ PM 2.5的項, 第10個小時(index起於0，故第10小時以9起)]
             y[month * 471 + day * 24 + hour, 0] = month_data[month][7, day * 24 + hour + 9] #value
 # print(x)
 # print(y)
+
+'''
+shuffle 將資料打散隨機排序
+目的：使後續切割 train_set、validation_set 資料可以較為平均
+'''
+# box = np.concatenate((x, y), axis=1)
+# box = pd.DataFrame(box)
+# #print(box[0][0])
+# box = box.sample(frac=1).reset_index(drop=True) # n=len(box.index)
+# #print(box[0][0])
+# x = np.array(box.iloc[:,0:135])
+# y = np.array(box.iloc[:,135:])
+# np.save(r'LinearRegression\TrainingData_2019_Pinzhen\x_tran_shuffle.npy', x)
+# np.save(r'LinearRegression\TrainingData_2019_Pinzhen\y_tran_shuffle.npy', y)
 '''
 [Normalize (1)]
 正歸化：當資料不是數值，或是雖為數值卻是類別資料(屬性資料、名義尺度)，則需經過編碼處理
@@ -69,6 +83,8 @@ for month in range(12):
           資料的標準化，適用於資料的最大值和最小值未知的情況，或有超出取值範圍的離群資料的情況。
           公式：新資料 =（原始資料-均值）/ 標準差
 '''
+x = np.load(r'LinearRegression\TrainingData_2019_Pinzhen\x_tran_shuffle.npy')
+y = np.load(r'LinearRegression\TrainingData_2019_Pinzhen\y_tran_shuffle.npy')
 mean_x = np.mean(x, axis = 0) #15 * 9: axis = 0 是取鉛直方向，對12 * 471的資料算 Mean，因此會有 15 * 9 個Mean值 
 std_x = np.std(x, axis = 0) #15 * 9 
 for i in range(len(x)): #12 * 471
@@ -83,7 +99,7 @@ for i in range(len(x)): #12 * 471
 x
 # print(x)
 '''
-[Split Training Data Into ]
+[Split Training Data]
 train_set用來訓練，validation_set不會被放入"train_set" and "validation_set"訓練、只是用來驗證
 '''
 import math
@@ -91,14 +107,38 @@ x_train_set = x[: math.floor(len(x) * 0.8), :]
 y_train_set = y[: math.floor(len(y) * 0.8), :]
 x_validation = x[math.floor(len(x) * 0.8): , :]
 y_validation = y[math.floor(len(y) * 0.8): , :]
-#print(x_train_set)
-#print(y_train_set)
-#print(x_validation)
-#print(y_validation)
-#print(len(x_train_set))
-#print(len(y_train_set))
-#print(len(x_validation))
-#print(len(y_validation))
+# print(x_train_set)
+# print(y_train_set)
+# print(x_validation)
+# print(y_validation)
+# print(len(x_train_set))
+# print(len(y_train_set))
+# print(len(x_validation))
+# print(len(y_validation))
+
+features = 15 * 9 + 1
+item = len(x_train_set)
+w = np.zeros([features, 1]) # features*1 
+x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
+x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
+learning_rate = 0.000001
+iter_time = 10000
+adagrad = np.zeros([features, 1])
+eps = 0.0000000001 # /epsilon/
+loss_array = []
+for t in range(iter_time):
+    gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
+    # adagrad += gradient ** 2
+    # w = w - learning_rate / np.sqrt(adagrad + eps) * gradient    
+    w = w - learning_rate * gradient    
+    loss = np.sqrt(np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2))/item) # rmse (root-mean-square error)
+    if loss > 100:
+        loss_array.append(20) # 數值天花板，繪圖用
+    else:
+        loss_array.append(loss)
+    if (not(t%1000)) | (t==iter_time-1):
+        print('Iter_time = ', t, "Loss(error) = ", loss)
+print('Training error rate: '+str(round(loss/np.mean(y_train_set)*100, 2))+'%')
 '''
 [Training]
 1. 創造Linear Model: weight, bias
@@ -107,11 +147,11 @@ y_validation = y[math.floor(len(y) * 0.8): , :]
    快速找到最好的參數值組合
 
 範例Code說明：
-   下面的 code 採用 Root Mean Square Error (均方根誤差，就是標準差啦)
+   下面的 code 採用 Root Mean Square Error (均方根誤差)
    因為常數項的存在，所以 dimension (dim) 需要多加一欄；
    eps 項是避免 adagrad 的分母為 0 而加的極小數值。
    每一個 dimension (dim) 會對應到各自的 gradient, weight (w)，
-   透過一次次的 iteration (iter_time) 學習。
+   透過迭代 (iter_time, iteration) 調整參數。
 
 # -----以下筆記----- #
 
@@ -141,13 +181,16 @@ Y_p = bias + w1 * X1 + w2 * X2 + ... + w15 * X15
   * 公式：賦予一個 weight 值 (稱為Learning rate，代號是 η /Eta/) 來調整下一輪該
     增加/減少 W 多少值 (以此提升調整參數的效率)。令 W' 為下一輪參數值，公式為 {W' = W - Eta * gd}
 '''
+'''
+# 總 Train
 dim = 15 * 9 + 1 # 因為有常數項參數 bias，所以 dimension (dim) 需要多加一欄
 w = np.zeros([dim, 1]) # [dim, 1]和(dim, 1)一樣意思，就是存成 dim * 1 的二維零矩陣
 x = np.concatenate((np.ones([12 * 471, 1]), x), axis = 1).astype(float) # 因為常數項的存在，所以 dimension (dim) 需要多加一欄
-learning_rate = 100 # 就是/Eta/ gradient descent的常係數
-iter_time = 1000 # K:gradient descent的迭代次數
+learning_rate = 0.000001 #ada:100 # 就是/Eta/ gradient descent的常係數
+iter_time = 1000 #1000 # K:gradient descent的迭代次數
 adagrad = np.zeros([dim, 1]) # ??? K:就是每次更新的𝜂就是等於前一次的𝜂再除以𝜎^t，而 σ^t則代表的是第 t 次以前的所有梯度更新值之 root mean square (平方和開根號)
-eps = 0.0000000001 # ???
+eps = 0.0000000001 # /epsilon/
+loss_array = []
 # print('iter_time & Loss\n')
 for t in range(iter_time):
     # 解釋梯度 (gradient) 的運算：
@@ -159,20 +202,24 @@ for t in range(iter_time):
     #   令 梯度 ( w 對 SSE (Sum Square Error, 誤差平方和) 趨近零的微分計算結果) 為 D = (np.dot(x, w) - y)，二維矩陣(item*1)
     #   令 轉置矩陣運算子為 ^T
     #   梯度運算的轉置簡化推導：2 * (矩陣D^T * 矩陣x)^T，得到一個 dim*1 的結果，依照轉置運算化簡變成 2*(矩陣x^T * 矩陣D)
-    gradient = 2 * np.dot( x.transpose(), (np.dot(x, w) - y) ) #dim*1
-    # if(t==1):
-    #     print(pd.DataFrame(gradient))
+    gradient = 2 * np.dot(x.transpose(), (np.dot(x, w)-y)) #dim*1
+    # if(t==iter_time-1):
+    #     print('Gradient:\n', pd.DataFrame(gradient))
     
     # 使用 AdaGrad
-    adagrad += gradient ** 2
-    w = w - learning_rate * gradient / np.sqrt(adagrad + eps)
+    #adagrad += gradient ** 2
+    #w = w - learning_rate / np.sqrt(adagrad + eps) * gradient    
+    w = w - learning_rate * gradient    
     # 目前的 Loss 數值
     loss = np.sqrt(np.sum(np.power(np.dot(x, w) - y, 2))/471/12) #rmse(root-mean-square deviation) #Loss Function #矩陣相乘: [(12*471)*(1+15*9)] dot [(1+15*9)*1]=[(12*471)*(1)]
-    if(t%100==0)|(t==iter_time-1):
-        print('Iter_time = '+ str(t), "Loss(error) = " + str(loss))
-np.save('LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
+    #loss = np.sum(np.power(np.dot(x, w) - y, 2))/(471*12)
+    loss_array.append(loss)
+    # if(t%100==0)|(t==iter_time-1):
+    #     print('Iter_time = '+ str(t), "Loss(error) = " + str(loss))
+np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
 w
-#print('Function Parameter:\n', pd.DataFrame(w))
+# print('Function Parameter:\n', pd.DataFrame(w))
+'''
 '''
 [Testing]
 # 這240項資料應該是萃取完後隨機取出的，資料的萃取工作暫時跳過，目前用Excel隨機選取資料代替
@@ -180,7 +227,8 @@ w
 載入 test data，並且以相似於訓練資料預先處理和特徵萃取的方式處理，
 使 test data 形成 240 個維度為 15 * 9 + 1 的資料。
 '''
-testdata = pd.read_csv('LinearRegression\TestingData\EASY_TEST.csv', header = None, encoding = 'utf-8')
+testdata = pd.read_csv(r'LinearRegression\TestingData\EASY_TEST.csv', header = None, encoding = 'utf-8')
+
 test_data = testdata.iloc[:, 1:10]
 # test_data[test_data == 'NR'] = 0 # 已完成
 test_data = test_data.to_numpy()
@@ -195,13 +243,21 @@ for i in range(len(test_x)): # 二維陣列的長度是算最外框裡面內涵�
 test_x = np.concatenate((np.ones([240, 1]), test_x), axis = 1).astype(float)
 test_x
 #print(test_x)
+
+# Ground truth of testing marks as test_y
+test_GroundTruth = testdata.iloc[:, 10:]
+test_GroundTruth = test_GroundTruth.to_numpy()
+test_y = np.empty([240, 1], dtype = float)
+for i in range(240):
+    test_y[i][0] = test_GroundTruth[15*i+7, 0]
+#print(pd.DataFrame(test_y))
 '''
 [Prediction]
 現在我們已定出 Model (預測模型, Functuon set)、
 找到自認完美 Function 的係數組合、選好了測試資料集，
 那就能進行預測了～
 '''
-w = np.load('LinearRegression\TrainingData_2019_Pinzhen\weight.npy')
+w = np.load(r'LinearRegression\TrainingData_2019_Pinzhen\weight.npy')
 ans_y = np.dot(test_x, w) # [item*dim] * [dim*1] = [item*1] 矩陣相乘的奧祕就是：
                           # 被左乘矩陣，則列運算；被右乘一個矩陣，則行運算。
                           # 矩陣相乘是相對的概念，單看你的主體是誰。
@@ -212,9 +268,9 @@ ans_y
 [Save Prediction to CSV File]
 '''
 import csv
-with open('LinearRegression\PredictionResult\PredictionResult.csv', mode='w', newline='') as submit_file:
+with open(r'LinearRegression\PredictionResult\PredictionResult.csv', mode='w', newline='') as submit_file:
     csv_writer = csv.writer(submit_file)
-    header = ['id', 'value']
+    header = ['item_id', 'value']
     # print(header)
     csv_writer.writerow(header)
     for i in range(240):
@@ -226,3 +282,16 @@ with open('LinearRegression\PredictionResult\PredictionResult.csv', mode='w', ne
 用各式 Model 比較輸入 validation_set 預估結果的 Average Error 來選擇更好的 Model
 切勿用 Testing data 來做篩選，否則會導致 Model 預測 Private Test data 的結果變差
 '''
+
+'''
+Loss 變化分析
+'''
+plt.axis([0, iter_time, 0, max(loss_array)+1])
+x_pos = np.linspace(0, iter_time, iter_time)
+y_pos = loss_array
+# print(pd.DataFrame(y_pos))
+plt.plot(x_pos, y_pos, '-', c='blue', markersize=4)
+print('Train Ave_err: ', loss_array[-1]) # No AdaGrad, all testing data: 5.158543826472928 iter:1000 ETA:0.000001
+print('Validation Ave_err: ', np.sqrt(np.sum((y_validation - np.dot(x_validation, w))**2)/len(y_validation)))
+print('Testing Ave_err: ', np.sqrt(np.sum((test_y - np.dot(test_x, w))**2)/len(test_y)))
+#plt.show()
