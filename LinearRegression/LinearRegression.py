@@ -5,8 +5,8 @@ import sys
 import numpy as np 
 import matplotlib.pyplot as plt #畫出圖型 
 import pandas as pd #資料處理
-pd.set_option("display.max_rows", 1000)    #設定最大能顯示1000rows
-pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
+#pd.set_option("display.max_rows", 1000)    #設定最大能顯示1000rows
+#pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
 '''
 [Load Train Data(匯入訓練資料)]
 TrainData_2019_PingZhen.csv 的資料為 12 個月中，每個月取 20 天，每天 24 小時的資料(每小時資料有 18 個 features)
@@ -122,7 +122,7 @@ w = np.zeros([features, 1]) # features*1
 x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
 x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
 learning_rate = 0.000001
-iter_time = 10000
+iter_time = 1# 10000
 adagrad = np.zeros([features, 1])
 eps = 0.0000000001 # /epsilon/
 loss_array = []
@@ -136,9 +136,9 @@ for t in range(iter_time):
         loss_array.append(20) # 數值天花板，繪圖用
     else:
         loss_array.append(loss)
-    if (not(t%1000)) | (t==iter_time-1):
-        print('Iter_time = ', t, "Loss(error) = ", loss)
-print('Training error rate: '+str(round(loss/np.mean(y_train_set)*100, 2))+'%')
+    #if (not(t%1000)) | (t==iter_time-1):
+    #    print('Iter_time = ', t, "Loss(error) = ", loss)
+# print('Training error rate: '+str(round(loss/np.mean(y_train_set)*100, 2))+'%')
 '''
 [Training]
 1. 創造Linear Model: weight, bias
@@ -222,13 +222,12 @@ w
 '''
 '''
 [Testing]
-# 這240項資料應該是萃取完後隨機取出的，資料的萃取工作暫時跳過，目前用Excel隨機選取資料代替
 # 測試資料也要經過標準化處理才能輸入 Function
 載入 test data，並且以相似於訓練資料預先處理和特徵萃取的方式處理，
 使 test data 形成 240 個維度為 15 * 9 + 1 的資料。
 '''
+# [load data]
 testdata = pd.read_csv(r'LinearRegression\TestingData\EASY_TEST.csv', header = None, encoding = 'utf-8')
-
 test_data = testdata.iloc[:, 1:10]
 # test_data[test_data == 'NR'] = 0 # 已完成
 test_data = test_data.to_numpy()
@@ -251,6 +250,7 @@ test_y = np.empty([240, 1], dtype = float)
 for i in range(240):
     test_y[i][0] = test_GroundTruth[15*i+7, 0]
 #print(pd.DataFrame(test_y))
+
 '''
 [Prediction]
 現在我們已定出 Model (預測模型, Functuon set)、
@@ -291,7 +291,7 @@ x_pos = np.linspace(0, iter_time, iter_time)
 y_pos = loss_array
 # print(pd.DataFrame(y_pos))
 plt.plot(x_pos, y_pos, '-', c='blue', markersize=4)
-print('Train Ave_err: ', loss_array[-1]) # No AdaGrad, all testing data: 5.158543826472928 iter:1000 ETA:0.000001
-print('Validation Ave_err: ', np.sqrt(np.sum((y_validation - np.dot(x_validation, w))**2)/len(y_validation)))
-print('Testing Ave_err: ', np.sqrt(np.sum((test_y - np.dot(test_x, w))**2)/len(test_y)))
-#plt.show()
+# print('Train Ave_err: ', loss_array[-1]) # No AdaGrad, all testing data: 5.158543826472928 iter:1000 ETA:0.000001
+# print('Validation Ave_err: ', np.sqrt(np.sum((y_validation - np.dot(x_validation, w))**2)/len(y_validation)))
+# print('Testing Ave_err: ', np.sqrt(np.sum((test_y - np.dot(test_x, w))**2)/len(test_y)))
+# plt.show()

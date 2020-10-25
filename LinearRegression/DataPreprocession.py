@@ -76,7 +76,7 @@ for col_name in temp_slice.columns:
 # 確認DataFrame正確合併 # for col in temp_slice.columns:print(dataset_full[dataset_full[col] >= 666].loc[:, col])
 # 資料清洗完畢
 def OutputCSV(dataframe, FileName):   
-    Path = ('LinearRegression\TestingData\\'+str(FileName))
+    Path = (r'LinearRegression\TestingData\\'+str(FileName))
     dataframe.to_csv( Path, index=False )
     print( '成功產出: ' + Path )
 # 匯出查看 # OutputCSV(dataset_full, CleanData_2019_PingZhen.csv)
