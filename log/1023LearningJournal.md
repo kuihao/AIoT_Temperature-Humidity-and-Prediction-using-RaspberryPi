@@ -81,7 +81,7 @@
         * **缺點：** 控制 Learning rate 分母部分的 sqrt(SS(g^t)) (有人用sigama^t稱之)，觀察即可發現它是一個**單調函數 (Monotonic function)**，裡面是 Sum of gradients' square，即使外加開平方，也完全沒有縮小或減少的成分在裡面，因次可以判定它是 非遞減函數 (Nondecreasing function)<br>
         這個問題就是 **「自始 Gradient 值就是極大，則 sqrt(SS(g^t)) 就一直很大」** 那麼 Learning rate 就會一開始就變得很小很小，整個參數找尋就變得很沒效率。
     * RMSProp (Root-Mean-Square prop, 方均根傳播)
-        * **改進AdaGrad有Monoton的問題**
+        * **改進 AdaGrad 有 Monoton 的問題**
         * 使用**指數移動平均 (exponential moving average，EMA或EXMA)**的想法<br>
         就是以指數式遞減加權的移動平均<br>
         效果是各數值的加權影響力隨時間而指數式遞減，越近期的數據加權影響力越重，但較舊的數據也給予一定的加權值
