@@ -127,9 +127,9 @@ w = np.zeros([features, 1]) # features*1
 x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
 x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
 # 以下為調整 Gradient 的重要參數 
-Gradient_Method = 'Momentum GD'
-learning_rate = 0.00001
-iter_time = 10000
+Gradient_Method = 'RMSProp'
+learning_rate = 0.01
+iter_time = 100000
 # AdaGrad 參數
 adagrad_HSS = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
 eps = 0.00000000001 # /epsilon/
@@ -145,6 +145,7 @@ momentum = 0
 Lambda = 0.9 # Attenuation coefficient，為歷史動量的衰退係數，值需小於 1，否則會 monotonic incressing
 # RMSProp
 ema = 0 # EMA (exponential moving average，指數移動平均)
+Alpha = 0.85
 # 紀錄 Loss 值，繪圖用
 loss_array = []
 # 紀錄迭代次數
@@ -160,16 +161,16 @@ for t in range(iter_time):
   ## momentum = Lambda * momentum - learning_rate * gradient
   ## w = w + momentum
 
-  # AdaGrad Method (Adaptive learning rate)
+  # AdaGrad Method [Adaptive learning rate]
   ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
   ## adagrad_HSS += gradient ** 2
   ## w = w - learning_rate / np.sqrt(adagrad_HSS + eps) * gradient
 
-  # RMSProp (Root-Mean-Square prop)
-  
+  # RMSProp (Root-Mean-Square prop) [Adaptive learning rate]
+  # EMA 和 Momentum 有點類似，都是用迭代小數係數達到「歷史數據影響力指數遞減」
   gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
-  adagrad_HSS += gradient ** 2
-  w = w - learning_rate / np.sqrt(adagrad_HSS + eps) * gradient
+  ema = Alpha * ema + (1-Alpha) * (gradient**2) # Tip:adagrad_HSS += gradient**2
+  w = w - learning_rate / np.sqrt(ema) * gradient
   
   # 計算 Loss 值
   loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
@@ -408,7 +409,7 @@ plt.show() # 顯示 plot 視窗
 
 '''
 [實驗紀錄是否存檔？]
-
+'''
 while True:
   save = False
   c = input('Save record? [y/n]')
@@ -429,4 +430,3 @@ if save:
   SaveRecord(head, row)
 else:
   print('unsave.')
-'''

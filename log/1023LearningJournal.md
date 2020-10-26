@@ -91,7 +91,7 @@
             1. Loop t from 0 to iteration:
             2.   if (t = 0) then v^t = 0
             3.   else
-            4.    v^t = α * v^(t-1) + (1-α) * g^(t-1)
+            4.    v^t = α * v^(t-1) + (1-α) * g^(t-1)**2
         * **缺點：** RMSProp 的公式裡缺乏如同 SGDM 的歷史向前推動力，因此容易卡在 Local minima (平坦高原)
     * Adam
         * 融合上述優點以改進缺點，SGDM + RMSProp
