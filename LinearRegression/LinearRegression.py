@@ -127,12 +127,12 @@ w = np.zeros([features, 1]) # features*1
 x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
 x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
 # 以下為調整 Gradient 的重要參數 
-Gradient_Method = 'RMSProp'
-learning_rate = 0.01
-iter_time = 100000
+Gradient_Method = '?'
+learning_rate = 0.0001
+iter_time = math.ceil(150000/4521)
 # AdaGrad 參數
 adagrad_HSS = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
-eps = 0.00000000001 # /epsilon/
+eps = 0.00000000001 # /epsilon/ 1e-11, 1e-8, 1e-6
 # SGD
 ## concat_x_y = np.concatenate((x_train_set, y_train_set), axis=1)
 ## random.shuffle(concat_x_y)
@@ -140,18 +140,25 @@ eps = 0.00000000001 # /epsilon/
 ## y_train_set = concat_x_y[0:, features:]
 ## del(concat_x_y)
 ## gc.collect()
+## stop_loop = False
 # Momentum
-momentum = 0
+momentum = np.zeros([features, 1])
 Lambda = 0.9 # Attenuation coefficient，為歷史動量的衰退係數，值需小於 1，否則會 monotonic incressing
 # RMSProp
-ema = 0 # EMA (exponential moving average，指數移動平均)
+ema = np.zeros([features, 1]) # EMA (exponential moving average，指數移動平均) 可能取名為 prop 比較好
 Alpha = 0.85
+# Adam
+Beta_1 = 0.9
+Beta_2 = 0.999
+eps_adam = 0.00000001
+momentum_adam = np.zeros([features, 1])
+prop_adam = np.zeros([features, 1])
 # 紀錄 Loss 值，繪圖用
 loss_array = []
 # 紀錄迭代次數
 count = 0 
 for t in range(iter_time):
-  count += 1
+  ## count += 1
   # Vanilla Gradient descenting
   ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
   ## w = w - learning_rate * gradient    
@@ -166,12 +173,26 @@ for t in range(iter_time):
   ## adagrad_HSS += gradient ** 2
   ## w = w - learning_rate / np.sqrt(adagrad_HSS + eps) * gradient
 
-  # RMSProp (Root-Mean-Square prop) [Adaptive learning rate]
+  # RMSProp (Root-Mean-Square propagation) [Adaptive learning rate]
   # EMA 和 Momentum 有點類似，都是用迭代小數係數達到「歷史數據影響力指數遞減」
-  gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
-  ema = Alpha * ema + (1-Alpha) * (gradient**2) # Tip:adagrad_HSS += gradient**2
-  w = w - learning_rate / np.sqrt(ema) * gradient
+  # propagation 傳播，就是指隨著時間越長、傳播的越遠，gradient**2 的影響力要越小
+  ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
+  ## ema = Alpha * ema + (1-Alpha) * (gradient**2) # Tip:adagrad_HSS += gradient**2
+  ## w = w - learning_rate / np.sqrt(ema) * gradient
   
+  # Adam (Ada + momentum) SGDM + RMSProp 缺點：真的不太會收斂，最後一直震盪
+  ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
+  ## # 此時的 momentum 直接結合 EMA 的概念，兩者果然很像
+  ## momentum_adam = Beta_1 * momentum_adam + (1-Beta_1) * gradient 
+  ## # ema_adam 用來自動調整 Learning rate 所以要用除的
+  ## prop_adam = Beta_2 * prop_adam + (1-Beta_2) * (gradient**2)
+  ## # de-biasing: 由於 Beta_1 跟 Beta_2 的值都是 0.9 (接近1)
+  ## # 導致迭代剛開始時，係數 (1-Beta) 值直接影響 gradient 的數值不夠大，
+  ## # 因此要隨著時間除上 (1-Beta) 以維持當下 gradient 的影響力不會減少
+  ## momentum_hat = momentum_adam/(1-(Beta_1)**count)
+  ## prop_hat = prop_adam/(1-(Beta_2)**count)
+  ## w = w - (learning_rate/np.sqrt(prop_hat)+eps_adam) * momentum_hat
+
   # 計算 Loss 值
   loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
   loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
@@ -180,20 +201,28 @@ for t in range(iter_time):
   if (not(count%1000)) | (count==iter_time-1):
      print('Iter_time = ', count, "Loss(error) = ", loss)
   #---------------#
-  ## # SGD
-  ## for n in range(item):
-  ##   count += 1
-  ##   x_n = x_train_set[n,:].reshape(1, features)
-  ##   y_n = y_train_set[n].reshape(1, 1)
-  ##   gradient = (-2) * np.dot(x_n.transpose(), (y_n - np.dot(x_n, w))) # features*1
-  ##   # w = w - learning_rate * gradient  
-  ##   adagrad_HSS += gradient ** 2
-  ##   w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
-  ##   loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
-  ##   loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
-  ##   loss_array.append(loss)
-  ##   if (not(count%10000)):
-  ##      print('Iter_time = ', count, "Loss(error) = ", loss)
+  # SGD
+  ## if not(stop_loop):
+  ##   for n in range(item):
+  ##     count += 1
+  ##     if(count>150000):
+  ##       count -= 1
+  ##       stop_loop = True
+  ##       break
+  ##     x_n = x_train_set[n,:].reshape(1, features)
+  ##     y_n = y_train_set[n].reshape(1, 1)
+  ##     gradient = (-2) * np.dot(x_n.transpose(), (y_n - np.dot(x_n, w))) # features*1
+  ##     w = w - learning_rate * gradient 
+  ##     ## adagrad_HSS += gradient ** 2
+  ##     ## w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
+  ##     loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
+  ##     loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+  ##     loss_array.append(loss)
+  ##     if (not(count%10000)):
+  ##        print('Iter_time = ', count, "Loss(error) = ", loss)
+  ## else:
+  ##   break
+  # BGD (Batch GD)
 # 將重要的函數權重值存檔
 np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
 '''
@@ -409,7 +438,7 @@ plt.show() # 顯示 plot 視窗
 
 '''
 [實驗紀錄是否存檔？]
-'''
+
 while True:
   save = False
   c = input('Save record? [y/n]')
@@ -430,3 +459,4 @@ if save:
   SaveRecord(head, row)
 else:
   print('unsave.')
+'''
