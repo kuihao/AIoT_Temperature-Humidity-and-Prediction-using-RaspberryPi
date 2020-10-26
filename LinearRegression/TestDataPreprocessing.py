@@ -95,3 +95,15 @@ np.save(r'LinearRegression\TestingData\x_test_shuffle.npy', test_x_shuffle)
 np.save(r'LinearRegression\TestingData\y_test_shuffle.npy', test_y_shuffle)
 #del(box, test_x, test_y)
 #gc.collect()
+
+# 直接切一半為 Public 及 Private testing data set
+## import math
+## getItems = math.floor(2892/2) # 隨機排序後抽取幾項資料
+## test_x_shuffle2_publuc = np.array(box.iloc[0:getItems, 0:135])
+## test_y_shuffle2_publuc = np.array(box.iloc[0:getItems, 135:])
+## test_x_shuffle2_private = np.array(box.iloc[getItems:, 0:135])
+## test_y_shuffle2_private = np.array(box.iloc[getItems:, 135:])
+## np.save(r'LinearRegression\TestingData\x_test_shuffle2_publuc.npy', test_x_shuffle2_publuc)
+## np.save(r'LinearRegression\TestingData\y_test_shuffle2_publuc.npy', test_y_shuffle2_publuc)
+## np.save(r'LinearRegression\TestingData\x_test_shuffle2_private.npy', test_x_shuffle2_private)
+## np.save(r'LinearRegression\TestingData\y_test_shuffle2_private.npy', test_y_shuffle2_private)

@@ -7,8 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt #畫出圖型 
 import pandas as pd #資料處理
 import csv
+import gc
 # pd.set_option("display.max_rows", 1000)    #設定最大能顯示1000rows
 # pd.set_option("display.max_columns", 1000) #設定最大能顯示1000columns
+
 '''
 [Load Train Data(匯入訓練資料)]
 TrainData_2019_PingZhen.csv 的資料為 12 個月中，每個月取 20 天，每天 24 小時的資料(每小時資料有 15 個 features)
@@ -118,42 +120,63 @@ train_set用來訓練，validation_set不會被放入"train_set" and "validation
 ## # print(len(x_validation)) # 1131
 ## # print(len(y_validation)) # 1131
 ## 
+## import random
 ## features = 15 * 9 + 1
 ## item = len(x_train_set)
 ## w = np.zeros([features, 1]) # features*1 
 ## x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
 ## x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
 ## # 以下為調整 Gradient 的重要參數 
-## Gradient_Method = 'Vanilla'
-## learning_rate = 0.000001
-## iter_time = 10000
+## Gradient_Method = 'SGD'
+## learning_rate = 0.0001 #0.000001
+## iter_time = 40
 ## # AdaGrad 參數
-## adagrad = np.zeros([features, 1])
-## eps = 0.0000000001 # /epsilon/
-## loss_array = [] # 紀錄 Loss 值，繪圖用
+## adagrad_HSS = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
+## eps = 0.00000000001 # /epsilon/
+## # SGD
+## concat_x_y = np.concatenate((x_train_set, y_train_set), axis=1)
+## random.shuffle(concat_x_y)
+## x_train_set = concat_x_y[0:, 0:features]
+## y_train_set = concat_x_y[0:, features:]
+## del(concat_x_y)
+## gc.collect()
+## # 紀錄 Loss 值，繪圖用
+## loss_array = []
+## # 紀錄迭代次數
+## count = 0 
 ## for t in range(iter_time):
-##     # Gradient descenting
-##     gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
-##     w = w - learning_rate * gradient    
-##     # AdaGrad Method
-##     ## adagrad += gradient ** 2
-##     ## w = w - learning_rate / np.sqrt(adagrad + eps) * gradient    
+##     # Vanilla Gradient descenting
+##     ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
+##     ## w = w - learning_rate * gradient    
 ##     
-##     # 計算 Loss 值
-##     loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
-##     loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
-##     # 數值天花板，繪圖用
-##     # if loss > 100:
-##     #     loss_array.append(20) 
-##     # else:
-##     #     loss_array.append(loss)
-##     loss_array.append(loss)
-##     # 文字顯示 Loss 變化
-##     if (not(t%1000)) | (t==iter_time-1):
-##         print('Iter_time = ', t, "Loss(error) = ", loss)
-## # 計算訓練資料的錯誤率`，公式： 真實值-預測值/真實值 * 100% 
-## Train_error_rate = round(np.sqrt((loss_sse)/(np.sum(y_train_set**2)))*100, 2)
-## # print('Training error rate: '+str(Train_error_rate)+'%')
+##     # AdaGrad Method
+##     ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
+##     ## adagrad_HSS += gradient ** 2
+##     ## w = w - learning_rate / np.sqrt(adagrad_HSS + eps) * gradient
+## 
+##     # SGD
+##     for n in range(item):
+##       count += 1
+##       x_n = x_train_set[n,:].reshape(1, features)
+##       y_n = y_train_set[n].reshape(1, 1)
+##       gradient = (-2) * np.dot(x_n.transpose(), (y_n - np.dot(x_n, w))) # features*1
+##       w = w - learning_rate * gradient  
+##       #adagrad_HSS += gradient ** 2
+##       #w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
+##       loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
+##       loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+##       loss_array.append(loss)
+##       if (not(count%10000)):
+##          print('Iter_time = ', count, "Loss(error) = ", loss)
+## 
+##     #---------------#
+##     ## # 計算 Loss 值
+##     ## loss_sse = np.sum(np.power(y_train_set - np.dot(x_train_set, w), 2)) # SSE (Sum of squared errors)
+##     ## loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+##     ## loss_array.append(loss)
+##     ## # 文字顯示 Loss 變化
+##     ## if (not(t%1000)) | (t==iter_time-1):
+##     ##    print('Iter_time = ', t, "Loss(error) = ", loss)
 ## # 將重要的函數權重值存檔
 ## np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
 '''
@@ -197,48 +220,72 @@ Y_p = bias + w1 * X1 + w2 * X2 + ... + w15 * X15
     若 gd 是正數 (斜率為正) 下一輪就減少 W，反之 gd 為負數，則在下一輪增加 W 的值。
   * 公式：賦予一個 weight 值 (稱為Learning rate，代號是 η /Eta/) 來調整下一輪該
     增加/減少 W 多少值 (以此提升調整參數的效率)。令 W' 為下一輪參數值，公式為 {W' = W - Eta * gd}
+  * Code 說明：
+    # 解釋梯度 (gradient) 的運算：
+    # 令 資料的數量為 item = 8,892  
+    # 令 features 的數量為 feature_weights = 135
+    # 令 訓練資料為 x，二維矩陣 (item*feature_weights)
+    # 令 參數(權重值，內涵 Bias)為 w，二維矩陣 (feature_weights*1) 
+    # 令 Ground truth 為 y，二維矩陣 (item*1)
+    # 令 梯度 ( w 對 SSE (Sum Square Error, 誤差平方和) 趨近零的微分計算結果) 為 GD = (np.dot(x, w) - y)，二維矩陣(item*1)
+    # 令 轉置矩陣運算子為 ^T
+    # 梯度運算的轉置簡化推導：2 * (矩陣GD^T * 矩陣x)^T，得到一個 feature_weights*1 的結果，依照轉置運算化簡變成 2*(矩陣x^T * 矩陣GD)
 '''
 # Real Train wirh whole training set
+import random
 feature_weights = 15 * 9 + 1 # 因為有常數項參數 bias，所以 feature_weights 需要多加一欄
 item = len(x)
 w = np.zeros([feature_weights, 1]) # [feature_weights, 1]和(feature_weights, 1)一樣意思，就是存成 feature_weights * 1 的二維零矩陣
 x = np.concatenate((np.ones([item, 1]), x), axis = 1).astype(float) # 因為常數項的存在，所以 feature_weightsension (feature_weights) 需要多加一欄
 # 以下為調整 Gradient 的重要參數 
 Gradient_Method = 'Vanilla'
-learning_rate = 0.000001 #ada:100 # gradient descent 的常係數 𝜂 /Eta/
-iter_time = 1000 #1000 # gradient descent 的迭代次數
+learning_rate = 0.0001 # gradient descent 的常係數 𝜂 /Eta/
+iter_time = 30 # gradient descent 的迭代次數
 # AdaGrad 參數
-adagrad = np.zeros([feature_weights, 1]) # 代號 𝜎^t 意思是第 t 次迭代以前的所有梯度更新值之平方和
+adagrad_HSS = np.zeros([feature_weights, 1]) # 代號 𝜎^t 意思是第 t 次迭代以前的所有梯度更新值之平方和 [HSS] Historical Sum of Grdient Square
 eps = 0.0000000001 # /epsilon/ 用途是避免在 Local minima (微分為零時) 停下來
-loss_array = [] # 紀錄 Loss 值，繪圖用
+# SGD
+concat_x_y = np.concatenate((x, y), axis=1)
+random.shuffle(concat_x_y)
+x = concat_x_y[0:, 0:feature_weights]
+y = concat_x_y[0:, feature_weights:]
+del(concat_x_y)
+gc.collect()
+# 紀錄 Loss 值，繪圖用
+loss_array = []
+# 紀錄迭代次數
+count = 0 
 for t in range(iter_time):
-    # 解釋梯度 (gradient) 的運算：
-    #   令 資料的數量為 item = 8,892  
-    #   令 features 的數量為 feature_weights = 135
-    #   令 訓練資料為 x，二維矩陣 (item*feature_weights)
-    #   令 參數(權重值，內涵 Bias)為 w，二維矩陣 (feature_weights*1) 
-    #   令 Ground truth 為 y，二維矩陣 (item*1)
-    #   令 梯度 ( w 對 SSE (Sum Square Error, 誤差平方和) 趨近零的微分計算結果) 為 GD = (np.dot(x, w) - y)，二維矩陣(item*1)
-    #   令 轉置矩陣運算子為 ^T
-    #   梯度運算的轉置簡化推導：2 * (矩陣GD^T * 矩陣x)^T，得到一個 feature_weights*1 的結果，依照轉置運算化簡變成 2*(矩陣x^T * 矩陣GD)
-    gradient = (-2) * np.dot(x.transpose(), (y - np.dot(x, w))) #feature_weights*1
-    # if(t==iter_time-1):
-    #     print('Gradient:\n', pd.DataFrame(gradient))
+  ## # Vanilla
+  ## gradient = (-2) * np.dot(x.transpose(), (y - np.dot(x, w))) #feature_weights*1
+  ## w = w - learning_rate * gradient    
+
+  ## # 使用 AdaGrad
+  ## adagrad_HSS += gradient ** 2
+  ## w = w - learning_rate / np.sqrt(adagrad_HSS + eps) * gradient    
     
-    # 使用 AdaGrad
-    # adagrad += gradient ** 2
-    # w = w - learning_rate / np.sqrt(adagrad + eps) * gradient    
-    w = w - learning_rate * gradient    
-    
-    # 計算 Loss 值
-    loss_sse = np.sum(np.power(y - np.dot(x, w), 2)) # Loss Function: SSE (Sum of squared errors)
-    loss = np.sqrt(loss_sse/item) # rmse (Root-mean-square deviation) 
-    loss_array.append(loss) # 紀錄 loss 值，繪圖用
-    # 文字顯示 Loss 變化
-    if (not(t%100)) | (t==iter_time-1):
-        print('Iter_time = ', t, "Loss(error) = ", loss)
-# 計算訓練資料的錯誤率`，公式： 真實值-預測值/真實值 * 100% 
-Train_error_rate = round(np.sqrt((loss_sse)/(np.sum(y**2)))*100, 2)
+  # SGD
+  for n in range(item):
+    count += 1
+    x_n = x[n,:].reshape(1, feature_weights)
+    y_n = y[n].reshape(1, 1)
+    gradient = (-2) * np.dot(x_n.transpose(), (y_n - np.dot(x_n, w))) # features*1
+    w = w - learning_rate * gradient  
+    #adagrad_HSS += gradient ** 2
+    #w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
+    loss_sse = np.sum(np.power(y - np.dot(x, w), 2)) # SSE (Sum of squared errors)
+    loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+    loss_array.append(loss)
+    if (not(count%10000)):
+       print('Iter_time = ', count, "Loss(error) = ", loss)
+
+    ## # 計算 Loss 值
+    ##  loss_sse = np.sum(np.power(y - np.dot(x, w), 2)) # Loss Function: SSE (Sum of squared errors)
+    ##  loss = np.sqrt(loss_sse/item) # rmse (Root-mean-square deviation) 
+    ##  loss_array.append(loss) # 紀錄 loss 值，繪圖用
+    ## # 文字顯示 Loss 變化
+    ##  if (not(t%100)) | (t==iter_time-1):
+    ##     print('Iter_time = ', t, "Loss(error) = ", loss)
 # 將重要的函數權重值存檔
 np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
 '''
@@ -248,8 +295,10 @@ np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight.npy', w)
 使 test data 形成 240 個維度為 15 * 9 + 1 的資料。
 '''
 # [load data]
-test_x = np.load(r'LinearRegression\TestingData\x_test_shuffle.npy')
-test_y = np.load(r'LinearRegression\TestingData\y_test_shuffle.npy')
+## test_x = np.load(r'LinearRegression\TestingData\x_test_shuffle.npy')
+## test_y = np.load(r'LinearRegression\TestingData\y_test_shuffle.npy')
+test_x = np.load(r'LinearRegression\TestingData\x_test_shuffle2_publuc.npy')
+test_y = np.load(r'LinearRegression\TestingData\y_test_shuffle2_publuc.npy')
 
 # [Scaling]
 # std_x, mean_x 要以訓練資料的數值進行標準化，才能將測試資料轉成相同的比例尺進行運算 
@@ -257,7 +306,7 @@ for i in range(len(test_x)): # 二維陣列的長度是算最外框裡面內涵�
     for j in range(len(test_x[0])): # 135 個 Features
         if std_x[j] != 0: # 根據除法定裡，分母不得為零
             test_x[i][j] = (test_x[i][j] - mean_x[j]) / std_x[j]
-test_x = np.concatenate((np.ones([240, 1]), test_x), axis = 1).astype(float)
+test_x = np.concatenate((np.ones([len(test_x), 1]), test_x), axis = 1).astype(float)
 test_x
 # print(test_x)
 '''
@@ -281,7 +330,7 @@ with open(r'LinearRegression\PredictionResult\PredictionResult.csv', mode='w', n
     header = ['item_id', 'value']
     # print(header)
     csv_writer.writerow(header)
-    for i in range(240):
+    for i in range(len(ans_y)):
         row = ['id_' + str(i), ans_y[i][0]]
         csv_writer.writerow(row)
         # print(row)
@@ -294,10 +343,13 @@ with open(r'LinearRegression\PredictionResult\PredictionResult.csv', mode='w', n
 # No AdaGrad, all testing data: 5.158543826472928 iter:1000 ETA:0.000001
 import datetime
 # 顯示實驗數據
-# Vali_Ave_Err = np.sqrt(np.sum((y_validation - np.dot(x_validation, w))**2)/len(y_validation))
+## Vali_Ave_Err = np.sqrt(np.sum((y_validation - np.dot(x_validation, w))**2)/len(y_validation))
 Test_Ave_Err = np.sqrt(np.sum((test_y - ans_y)**2)/len(test_y))
 y_validation = '' # 使用全部訓練集的時候此值設為無，Validation 檢測時此行要屏蔽
 Vali_Ave_Err = 0 # 使用全部訓練集的時候此值設為 0，Validation 檢測時此行要屏蔽
+
+# 計算訓練資料的錯誤率`，公式： 真實值-預測值/真實值 * 100% 
+Train_error_rate = round(np.sqrt((loss_sse)/(np.sum(y**2)))*100, 2)
 # print('Train Ave_err: ', loss)
 # print('Validation Ave_err: ', Vali_Ave_Err)
 # print('Testing Ave_err: ', Test_Ave_Err)
@@ -305,7 +357,7 @@ time = (datetime.datetime.now()).strftime("%y/%m/%d %H:%M:%S")
 row =   [time, item, 
         len(y_validation), len(test_y), 
         Normalization_Method, learning_rate, 
-        iter_time, Gradient_Method, 
+        count, Gradient_Method, 
         str(Train_error_rate)+'%', loss, 
         Vali_Ave_Err, Test_Ave_Err,]
 head =  ['Date', 'Train set size', 
@@ -325,13 +377,38 @@ def SaveRecord(a_head, a_row):
         #writer.writerow(header) # 先用 mode w 寫 header，之後用 mode a 新增數據
         writer.writerow(a_row)
         print('Save record successfully!')
-#SaveRecord(head, row)
+# SaveRecord(head, row)
 '''
 [Loss 變化分析]
 '''
 # 繪製「函數的 Loss 值時變圖」
-plt.axis([0, iter_time, 0, max(loss_array)+1]) # 二維座標圖 x, y 軸的顯示範圍
-x_pos = np.linspace(0, iter_time, iter_time) # 依照迭代次數產生 x 軸座標
+plot_len = len(loss_array)
+plt.axis([0, plot_len, 0, max(loss_array)+1]) # 二維座標圖 x, y 軸的顯示範圍
+x_pos = np.linspace(0, plot_len, plot_len) # 依照迭代次數產生 x 軸座標
 y_pos = loss_array # y 軸是 Loss value
 plt.plot(x_pos, y_pos, '-', c='blue', markersize=4) # 形成每個點，繪出函數圖形
 plt.show() # 顯示 plot 視窗
+
+'''
+[實驗紀錄是否存檔？]
+'''
+## while True:
+##   save = False
+##   c = input('Save record? [y/n]')
+##   if len(c) == 1:
+##     if(c == 'y')|(c == 'Y'):
+##       save = True
+##       break
+##     elif (c == 'n')|(c == 'N'):
+##       break
+##     else:
+##       print('plz enter again, only one character \'y\' or \'n\'.')
+##       continue
+##   else:
+##     print('plz enter again, only one character \'y\' or \'n\'.')
+##     continue
+## if save:
+##   print('saving...')
+##   SaveRecord(head, row)
+## else:
+##   print('unsave.')

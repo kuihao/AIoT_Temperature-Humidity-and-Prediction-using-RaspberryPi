@@ -61,7 +61,7 @@ b_history = [b]
 
 # Ada 的一些設定
 eps = 0 #0.0000000001
-b_HSE = 0
+b_HSE = 0 # Historical Sum Square
 w_HSE = 0
 
 # step 5. 執行梯度下降
