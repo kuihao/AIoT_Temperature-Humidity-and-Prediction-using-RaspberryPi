@@ -1,0 +1,3 @@
+Date,Model,Train set size,Validation set size,Test set size,Normalization,Learning rate,Iteration time,Gradient,Train error rate,Train Ave_err,Validation Ave_err,Testing Ave_err
+20/10/27 17:22:27,Square,4521,1131,1446,Z-Score,1e-07,150000,SGDM,33.84%,7.762739079577979,7.935280655077984,8.183409590688322
+20/10/27 17:34:26,Square,4521,1131,1446,Z-Score,1e-07,150000,SGDM,32.91%,7.548805270940137,8.142571526942529,8.266585883203707
