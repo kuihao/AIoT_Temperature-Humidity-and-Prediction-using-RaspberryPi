@@ -62,7 +62,7 @@ Column Name 'RAINFALL' 的 NR(No Rain) 全部改成 0 ......[已完成]
 ##             y[month * 471 + day * 24 + hour, 0] = month_data[month][7, day * 24 + hour + 9] #value
 ## # print(x)
 ## # print(y)
-
+## 
 '''
 [Shuffle] 將資料打散隨機排序
 目的：使後續切割 train_set、validation_set 資料可以較為平均

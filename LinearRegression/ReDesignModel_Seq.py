@@ -32,65 +32,86 @@ for i in range(len(x)): # 12 * 471
 train_set and validation_set
 '''
 import math
-x_train_set = x[: math.floor(len(x) * 0.8), :]
-y_train_set = y[: math.floor(len(y) * 0.8), :]
-x_validation = x[math.floor(len(x) * 0.8): , :]
-y_validation = y[math.floor(len(y) * 0.8): , :]
+## x_train_set = x[: math.floor(len(x) * 0.8), :]
+## y_train_set = y[: math.floor(len(y) * 0.8), :]
+## x_validation = x[math.floor(len(x) * 0.8): , :]
+## y_validation = y[math.floor(len(y) * 0.8): , :]
 '''
 [Partial training and Validation test]
 '''
+x_train_set = x
+y_train_set = y
 import random
 features = 15 * 9 + 1
 item = len(x_train_set)
 w1 = np.zeros([features, 1]) # features*1 
 w2 = np.zeros([features, 1]) # features*1 
 x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
-x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
+## x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
 # 以下為調整 Gradient 的重要參數 
-Model = 'Square'
-SavingDialog = True
-Gradient_Method = 'MBGD+Momentum'
-learning_rate = 0.0000001
+Model = 'Square-F12345F10F12F13'
+SavingDialog = True  
+Gradient_Method = 'AdaGrad'
+learning_rate = 1
 iter_time = 150000
 # AdaGrad 參數
-adagrad_HSS = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
+adagrad_HSS_1 = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
+adagrad_HSS_2 = np.zeros([features, 1])
 eps = 0.00000000001 # /epsilon/ 1e-11, 1e-8, 1e-6
 # SGD
-concat_x_y = np.concatenate((x_train_set, y_train_set), axis=1)
-random.shuffle(concat_x_y)
-x_train_set = concat_x_y[0:, 0:features]
-y_train_set = concat_x_y[0:, features:]
-del(concat_x_y)
-gc.collect()
-stop_loop = False
-epoch = iter_time
-#batch_size = item
-#iter_time = math.ceil(iter_time/batch_size)
-# MBGD
-batch_size = int(0.1*item)
-iter_time = math.ceil(iter_time/(item/batch_size))
+## concat_x_y = np.concatenate((x_train_set, y_train_set), axis=1)
+## random.shuffle(concat_x_y)
+## x_train_set = concat_x_y[0:, 0:features]
+## y_train_set = concat_x_y[0:, features:]
+## del(concat_x_y)
+## gc.collect()
+## stop_loop = False
+## epoch = iter_time
+## #batch_size = item
+## #iter_time = math.ceil(iter_time/batch_size)
+## # MBGD
+## batch_size = int(0.1*item)
+## iter_time = math.ceil(iter_time/(item/batch_size))
 # Momentum
 momentum = np.zeros([features, 1])
 momentum2 = np.zeros([features, 1])
 Lambda = 0.9 # Attenuation coefficient，為歷史動量的衰退係數，值需小於 1，否則會 monotonic incressing
 # RMSProp
-ema = np.zeros([features, 1]) # EMA (exponential moving average，指數移動平均) 可能取名為 prop 比較好
-Alpha = 0.85
+Prop1 = np.zeros([features, 1]) # EMA (exponential moving average，指數移動平均) 可能取名為 prop 比較好
+Prop2 = np.zeros([features, 1])
+Alpha = 0.80
 # Adam
 Beta_1 = 0.9
 Beta_2 = 0.999
 eps_adam = 0.00000001
-momentum_adam = np.zeros([features, 1])
-prop_adam = np.zeros([features, 1])
+momentum_adam1 = np.zeros([features, 1])
+momentum_adam2 = np.zeros([features, 1])
+prop_adam1 = np.zeros([features, 1])
+prop_adam2 = np.zeros([features, 1])
 # 紀錄 Loss 值，繪圖用
 loss_array = []
 # 紀錄迭代次數
 count = 0 
+# 篩選 Features
+L0 = np.zeros([item, 18])
+x_train_set[:, 109:127] = L0 # 'WIND_DIREC', 'WIND_SPEED
+L0 = np.zeros([item, 45])
+x_train_set[:, 9:54] = L0 # 'CO', 'NO', 'NO2', 'NOx', 'O3'
+L0 = np.zeros([item, 9])
+x_train_set[:, 90:99] = L0 # SO2
+## L0 = np.zeros([len(x_validation), 18])
+## x_validation[:, 109:127] = L0
+## L0 = np.zeros([len(x_validation), 45])
+## x_validation[:, 9:54] = L0
+## L0 = np.zeros([len(x_validation), 9])
+## x_validation[:, 90:99] = L0
 for t in range(iter_time):
-  ## count += 1
+  count += 1
   # Vanilla Gradient descenting
-  ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
-  ## w = w - learning_rate * gradient    
+  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## w1 = w1 - learning_rate * gradient1
+  ## w2 = w2 - learning_rate * gradient2        
 
   # Momentum
   ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
@@ -98,37 +119,49 @@ for t in range(iter_time):
   ## w = w + momentum
 
   # AdaGrad Method [Adaptive learning rate]
-  ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
-  ## adagrad_HSS += gradient ** 2
-  ## w = w - learning_rate / np.sqrt(adagrad_HSS + eps) * gradient
+  gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  adagrad_HSS_1 += gradient1 ** 2
+  adagrad_HSS_2 += gradient2 ** 2
+  w1 = w1 - learning_rate / np.sqrt(adagrad_HSS_1 + eps) * gradient1
+  w2 = w2 - learning_rate / np.sqrt(adagrad_HSS_2 + eps)* gradient2 
 
   # RMSProp (Root-Mean-Square propagation) [Adaptive learning rate]
   # EMA 和 Momentum 有點類似，都是用迭代小數係數達到「歷史數據影響力指數遞減」
   # propagation 傳播，就是指隨著時間越長、傳播的越遠，gradient**2 的影響力要越小
-  ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
-  ## ema = Alpha * ema + (1-Alpha) * (gradient**2) # Tip:adagrad_HSS += gradient**2
-  ## w = w - learning_rate / np.sqrt(ema) * gradient
+  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## Prop1 = Alpha * Prop1 + (1-Alpha) * (gradient1**2) # Tip:adagrad_HSS += gradient**2
+  ## Prop2 = Alpha * Prop2 + (1-Alpha) * (gradient2**2) # Tip:adagrad_HSS += gradient**2
+  ## w1 = w1 - learning_rate / np.sqrt(Prop1) * gradient1
+  ## w2 = w2 - learning_rate / np.sqrt(Prop2) * gradient2
   
   # Adam (Ada + momentum) SGDM + RMSProp 缺點：真的不太會收斂，最後一直震盪
-  ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
+  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
   ## # 此時的 momentum 直接結合 EMA 的概念，兩者果然很像
-  ## momentum_adam = Beta_1 * momentum_adam + (1-Beta_1) * gradient 
+  ## momentum_adam1 = Beta_1 * momentum_adam1 + (1-Beta_1) * gradient1 
+  ## momentum_adam2 = Beta_1 * momentum_adam2 + (1-Beta_1) * gradient2 
   ## # ema_adam 用來自動調整 Learning rate 所以要用除的
-  ## prop_adam = Beta_2 * prop_adam + (1-Beta_2) * (gradient**2)
+  ## prop_adam1 = Beta_2 * prop_adam1 + (1-Beta_2) * (gradient1**2)
+  ## prop_adam2 = Beta_2 * prop_adam2 + (1-Beta_2) * (gradient2**2)
   ## # de-biasing: 由於 Beta_1 跟 Beta_2 的值都是 0.9 (接近1)
   ## # 導致迭代剛開始時，係數 (1-Beta) 值直接影響 gradient 的數值不夠大，
   ## # 因此要隨著時間除上 (1-Beta) 以維持當下 gradient 的影響力不會減少
-  ## momentum_hat = momentum_adam/(1-(Beta_1)**count)
-  ## prop_hat = prop_adam/(1-(Beta_2)**count)
-  ## w = w - (learning_rate/np.sqrt(prop_hat)+eps_adam) * momentum_hat
+  ## momentum_hat1 = momentum_adam1/(1-(Beta_1)**count)
+  ## momentum_hat2 = momentum_adam2/(1-(Beta_1)**count)
+  ## prop_hat1 = prop_adam1/(1-(Beta_2)**count)
+  ## prop_hat2 = prop_adam2/(1-(Beta_2)**count)
+  ## w1 = w1 - (learning_rate/np.sqrt(prop_hat1)+eps_adam) * momentum_hat1
+  ## w2 = w2 - (learning_rate/np.sqrt(prop_hat2)+eps_adam) * momentum_hat2
 
   # 計算 Loss 值
-  ## loss_sse = np.sum(np.power(y_train_set - (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2)), 2)) # SSE (Sum of squared errors)
-  ## loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
-  ## loss_array.append(loss)
-  ## # 文字顯示 Loss 變化
-  ## if (not(count%1000)) | (count==iter_time-1):
-  ##    print('Iter_time = ', count, "Loss(error) = ", loss)
+  loss_sse = np.sum(np.power(y_train_set - (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2)), 2)) # SSE (Sum of squared errors)
+  loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+  loss_array.append(loss)
+  # 文字顯示 Loss 變化
+  if (not(count%1000)) | (count==iter_time-1):
+     print('Iter_time = ', count, "Loss(error) = ", loss)
   #---------------#
   # SGD
   ## if not(stop_loop):
@@ -156,36 +189,34 @@ for t in range(iter_time):
   ## else:
   ##   break
   # MBGD (Mini-Batch GD)
-  if not(stop_loop):
-    for n in range(math.ceil(item/batch_size)):
-      count += 1
-      if(batch_size*(n+1)>item):
-        r = item - batch_size*n
-        x_n = x_train_set[batch_size*n:batch_size*n+r,:]
-        y_n = y_train_set[batch_size*n:batch_size*(n)+r]
-      else:
-        x_n = x_train_set[batch_size*n:batch_size*(n+1),:]
-        y_n = y_train_set[batch_size*n:batch_size*(n+1)]
-      gradient1 = 2 * np.dot(x_n.transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
-      gradient2 = 2 * np.dot((x_n**2).transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
-      momentum = Lambda * momentum - learning_rate * gradient1
-      momentum2 = Lambda * momentum2 - learning_rate * gradient2
-      w1 = w1 + momentum
-      w2 = w2 + momentum2 
-      ## adagrad_HSS += gradient ** 2
-      ## w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
-      loss_sse = np.sum(np.power(y_train_set - (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2)), 2)) # SSE (Sum of squared errors)
-      loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
-      loss_array.append(loss)
-      if (not(count%10000)):
-        print('Iter_time = ', count, "Loss(error) = ", loss)
-      if(count>epoch):
-        stop_loop = True
-        break
-  else:
-    break
-  
-
+  ## if not(stop_loop):
+  ##   for n in range(math.ceil(item/batch_size)):
+  ##     count += 1
+  ##     if(batch_size*(n+1)>item):
+  ##       r = item - batch_size*n
+  ##       x_n = x_train_set[batch_size*n:batch_size*n+r,:]
+  ##       y_n = y_train_set[batch_size*n:batch_size*(n)+r]
+  ##     else:
+  ##       x_n = x_train_set[batch_size*n:batch_size*(n+1),:]
+  ##       y_n = y_train_set[batch_size*n:batch_size*(n+1)]
+  ##     gradient1 = 2 * np.dot(x_n.transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
+  ##     gradient2 = 2 * np.dot((x_n**2).transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
+  ##     momentum = Lambda * momentum - learning_rate * gradient1
+  ##     momentum2 = Lambda * momentum2 - learning_rate * gradient2
+  ##     w1 = w1 + momentum
+  ##     w2 = w2 + momentum2 
+  ##     ## adagrad_HSS += gradient ** 2
+  ##     ## w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
+  ##     loss_sse = np.sum(np.power(y_train_set - (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2)), 2)) # SSE (Sum of squared errors)
+  ##     loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+  ##     loss_array.append(loss)
+  ##     if (not(count%1000)):
+  ##       print('Iter_time = ', count, "Loss(error) = ", loss)
+  ##     if(count>epoch):
+  ##       stop_loop = True
+  ##       break
+  ## else:
+  ##   break
 # 將重要的函數權重值存檔
 np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight_1.npy', w1)
 np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight_2.npy', w2)
@@ -271,6 +302,13 @@ for i in range(len(test_x)): # 二維陣列的長度是算最外框裡面內涵�
 test_x = np.concatenate((np.ones([len(test_x), 1]), test_x), axis = 1).astype(float)
 test_x
 # print(test_x)
+# 遮罩一些 Features 9:54
+L0 = np.zeros([len(test_x), 18])
+test_x[:,109:127] = L0
+L0 = np.zeros([len(test_x), 45])
+test_x[:,9:54] = L0
+L0 = np.zeros([len(test_x), 9])
+test_x[:,90:99] = L0
 '''
 [Prediction] 對 Function 輸入測試資料及參數
 '''
@@ -295,11 +333,11 @@ with open(r'LinearRegression\PredictionResult\PredictionResult.csv', mode='w', n
 '''
 import datetime
 # 顯示實驗數據
-Vali_Ave_Err = np.sqrt(np.sum((y_validation - (np.dot(x_validation, w1) + np.dot(x_validation**2, w2)))**2)/len(y_validation))
+## Vali_Ave_Err = np.sqrt(np.sum((y_validation - (np.dot(x_validation, w1) + np.dot(x_validation**2, w2)))**2)/len(y_validation))
 Test_Ave_Err = np.sqrt(np.sum((test_y - ans_y)**2)/len(test_y))
 ## # 全部訓練集時以下解除，Validation 檢測時以下要屏蔽
-## y_validation = '' 
-## Vali_Ave_Err = 0 
+y_validation = '' 
+Vali_Ave_Err = 0 
 time = (datetime.datetime.now()).strftime("%y/%m/%d %H:%M:%S")
 Train_error_rate = round(np.sqrt((loss_sse)/(np.sum(y**2)))*100, 2)
 row =   [time, Model, item, 
