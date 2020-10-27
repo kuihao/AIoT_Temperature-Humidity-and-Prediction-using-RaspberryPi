@@ -49,7 +49,7 @@ x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), a
 # 以下為調整 Gradient 的重要參數 
 Model = 'Square'
 SavingDialog = True
-Gradient_Method = 'SGDM'
+Gradient_Method = 'MBGD+Momentum'
 learning_rate = 0.0000001
 iter_time = 150000
 # AdaGrad 參數
@@ -63,7 +63,12 @@ y_train_set = concat_x_y[0:, features:]
 del(concat_x_y)
 gc.collect()
 stop_loop = False
-iter_time = math.ceil(iter_time/4521)
+epoch = iter_time
+#batch_size = item
+#iter_time = math.ceil(iter_time/batch_size)
+# MBGD
+batch_size = int(0.1*item)
+iter_time = math.ceil(iter_time/(item/batch_size))
 # Momentum
 momentum = np.zeros([features, 1])
 momentum2 = np.zeros([features, 1])
@@ -126,15 +131,41 @@ for t in range(iter_time):
   ##    print('Iter_time = ', count, "Loss(error) = ", loss)
   #---------------#
   # SGD
+  ## if not(stop_loop):
+  ##   for n in range(item):
+  ##     count += 1
+  ##     if(count>epoch):
+  ##       count -= 1
+  ##       stop_loop = True
+  ##       break
+  ##     x_n = x_train_set[n,:].reshape(1, features)
+  ##     y_n = y_train_set[n].reshape(1, 1)
+  ##     gradient1 = 2 * np.dot(x_n.transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
+  ##     gradient2 = 2 * np.dot((x_n**2).transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
+  ##     momentum = Lambda * momentum - learning_rate * gradient1
+  ##     momentum2 = Lambda * momentum2 - learning_rate * gradient2
+  ##     w1 = w1 + momentum
+  ##     w2 = w2 + momentum2 
+  ##     ## adagrad_HSS += gradient ** 2
+  ##     ## w = w - learning_rate/np.sqrt(adagrad_HSS + eps) * gradient
+  ##     loss_sse = np.sum(np.power(y_train_set - (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2)), 2)) # SSE (Sum of squared errors)
+  ##     loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
+  ##     loss_array.append(loss)
+  ##     if (not(count%10000)):
+  ##        print('Iter_time = ', count, "Loss(error) = ", loss)
+  ## else:
+  ##   break
+  # MBGD (Mini-Batch GD)
   if not(stop_loop):
-    for n in range(item):
+    for n in range(math.ceil(item/batch_size)):
       count += 1
-      if(count>150000):
-        count -= 1
-        stop_loop = True
-        break
-      x_n = x_train_set[n,:].reshape(1, features)
-      y_n = y_train_set[n].reshape(1, 1)
+      if(batch_size*(n+1)>item):
+        r = item - batch_size*n
+        x_n = x_train_set[batch_size*n:batch_size*n+r,:]
+        y_n = y_train_set[batch_size*n:batch_size*(n)+r]
+      else:
+        x_n = x_train_set[batch_size*n:batch_size*(n+1),:]
+        y_n = y_train_set[batch_size*n:batch_size*(n+1)]
       gradient1 = 2 * np.dot(x_n.transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
       gradient2 = 2 * np.dot((x_n**2).transpose(), (np.dot(x_n, w1)+np.dot(x_n**2, w2) - y_n)) # features*1
       momentum = Lambda * momentum - learning_rate * gradient1
@@ -147,10 +178,14 @@ for t in range(iter_time):
       loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
       loss_array.append(loss)
       if (not(count%10000)):
-         print('Iter_time = ', count, "Loss(error) = ", loss)
+        print('Iter_time = ', count, "Loss(error) = ", loss)
+      if(count>epoch):
+        stop_loop = True
+        break
   else:
     break
-  # BGD (Batch GD)
+  
+
 # 將重要的函數權重值存檔
 np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight_1.npy', w1)
 np.save(r'LinearRegression\TrainingData_2019_Pinzhen\weight_2.npy', w2)
