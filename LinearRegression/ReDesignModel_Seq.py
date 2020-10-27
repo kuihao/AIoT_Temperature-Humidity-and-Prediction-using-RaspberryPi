@@ -51,9 +51,9 @@ x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(f
 # 以下為調整 Gradient 的重要參數 
 Model = 'Square-F12345F10F12F13'
 SavingDialog = True  
-Gradient_Method = 'AdaGrad'
-learning_rate = 1
-iter_time = 150000
+Gradient_Method = 'RMSProp'
+learning_rate = 0.01
+iter_time = 15000
 # AdaGrad 參數
 adagrad_HSS_1 = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
 adagrad_HSS_2 = np.zeros([features, 1])
@@ -79,7 +79,7 @@ Lambda = 0.9 # Attenuation coefficient，為歷史動量的衰退係數，值需
 # RMSProp
 Prop1 = np.zeros([features, 1]) # EMA (exponential moving average，指數移動平均) 可能取名為 prop 比較好
 Prop2 = np.zeros([features, 1])
-Alpha = 0.80
+Alpha = 0.9
 # Adam
 Beta_1 = 0.9
 Beta_2 = 0.999
@@ -119,22 +119,22 @@ for t in range(iter_time):
   ## w = w + momentum
 
   # AdaGrad Method [Adaptive learning rate]
-  gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  adagrad_HSS_1 += gradient1 ** 2
-  adagrad_HSS_2 += gradient2 ** 2
-  w1 = w1 - learning_rate / np.sqrt(adagrad_HSS_1 + eps) * gradient1
-  w2 = w2 - learning_rate / np.sqrt(adagrad_HSS_2 + eps)* gradient2 
+  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## adagrad_HSS_1 += gradient1 ** 2
+  ## adagrad_HSS_2 += gradient2 ** 2
+  ## w1 = w1 - learning_rate / np.sqrt(adagrad_HSS_1 + eps) * gradient1
+  ## w2 = w2 - learning_rate / np.sqrt(adagrad_HSS_2 + eps)* gradient2 
 
   # RMSProp (Root-Mean-Square propagation) [Adaptive learning rate]
   # EMA 和 Momentum 有點類似，都是用迭代小數係數達到「歷史數據影響力指數遞減」
   # propagation 傳播，就是指隨著時間越長、傳播的越遠，gradient**2 的影響力要越小
-  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  ## Prop1 = Alpha * Prop1 + (1-Alpha) * (gradient1**2) # Tip:adagrad_HSS += gradient**2
-  ## Prop2 = Alpha * Prop2 + (1-Alpha) * (gradient2**2) # Tip:adagrad_HSS += gradient**2
-  ## w1 = w1 - learning_rate / np.sqrt(Prop1) * gradient1
-  ## w2 = w2 - learning_rate / np.sqrt(Prop2) * gradient2
+  gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  Prop1 = Alpha * Prop1 + (1-Alpha) * (gradient1**2) # Tip:adagrad_HSS += gradient**2
+  Prop2 = Alpha * Prop2 + (1-Alpha) * (gradient2**2) # Tip:adagrad_HSS += gradient**2
+  w1 = w1 - learning_rate / np.sqrt(Prop1+eps) * gradient1
+  w2 = w2 - learning_rate / np.sqrt(Prop2+eps) * gradient2
   
   # Adam (Ada + momentum) SGDM + RMSProp 缺點：真的不太會收斂，最後一直震盪
   ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
