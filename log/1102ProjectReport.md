@@ -1,15 +1,15 @@
 # 2020/11/02 HOMEWORK 1 - FINAL REPROT
 ## CONTENT
-* <a herf="#anchor0">PROBLEM DESPRICTION</a>
-* <a herf="#anchor0">HIGHLIGHT</a>
-    * <a herf="#pre-processing">PRE-PROCESSING</a>
-    * <a herf="#adjust-learning--rate">ADJUST LEARNING  RATE</a>
-    * <a herf="#feature-selection">FEATURE SELECTION</a>
-    * <a herf="#feature-scaling">FEATURE SCALING</a>
-    * <a herf="#performance-imporvement">PERFORMANCE IMPORVEMENT</a>
+* [PROBLEM DESPRICTION](#problem-despriction)
+* [HIGHLIGHT](#highlight)
+    * [PRE-PROCESSING](#pre-processing)
+    * [ADJUST LEARNING RATE](#adjust-learning--rate)
+    * [FEATURE SELECTION](#feature-selection)
+    * [FEATURE SCALING](#feature-scaling)
+    * [PERFORMANCE IMPORVEMENT](#performance-imporvement)
 * [LISTING](#listing)
 * [TEST AND RUN](1102ProjectReport.md#test-and-run)
-* DISCUSSION
+* [DISCUSSION](#discussion)
 ----
 ## PROBLEM DESPRICTION
 ----
