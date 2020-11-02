@@ -4,16 +4,16 @@ ARCHITECTURE<br>
 
 ----
 ## CONTENT
-* [PROBLEM DESPRICTION](#problem-despriction)
-* [HIGHLIGHT](#highlight)
-    * [PRE-PROCESSING](#pre-processing)
-    * [ADJUST LEARNING RATE](#adjust-learning--rate)
-    * [FEATURE SELECTION](#feature-selection)
-    * [FEATURE SCALING](#feature-scaling)
-    * [PERFORMANCE IMPORVEMENT](#performance-imporvement)
-* [LISTING](#listing)
-* [TEST AND RUN](1102ProjectReport.md#test-and-run)
-* [DISCUSSION](#discussion)
+* [PROBLEM DESPRICTION(專案描述)](#problem-despriction)
+* [HIGHLIGHT(重點部分)](#highlight)
+    * [PRE-PROCESSING(資料預訓練)](#pre-processing)
+    * [ADJUST LEARNING RATE(調整學習係數)](#adjust-learning--rate)
+    * [FEATURE SELECTION(特徵值更換)](#feature-selection)
+    * [FEATURE SCALING(特徵縮放)](#feature-scaling)
+    * [PERFORMANCE IMPORVEMENT(提升預測結果)](#performance-imporvement)
+* [LISTING(條列程式檔案)](#listing)
+* [TEST AND RUN(程式的測試與執行)](1102ProjectReport.md#test-and-run)
+* [DISCUSSION(結果討論)](#discussion)
 
 -----
 ## PROBLEM DESPRICTION
