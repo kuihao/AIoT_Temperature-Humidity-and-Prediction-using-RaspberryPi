@@ -17,7 +17,7 @@ ARCHITECTURE<br>
 
 -----
 ## PROBLEM DESPRICTION
-#### Through Prof. Hung-Yi Lee’s OCW (Open Course Ware) and the homework “PM2.5 prediction” learning the knowledge of Linear Regression.
+#### Through Prof. Hung-Yi Lee’s OCW (Open Course Ware) and the homework **“PM2.5 prediction”** learning the knowledge of Linear Regression.
 * **Data source**<br>
 “環境保護署 2019 年桃園市平鎮區空氣品質監測資料”
 * **Choose Model**<br>
@@ -82,6 +82,7 @@ Every 9 hours with 15 sensor type/hour be the features and **predict the PM2.5 o
 ----
 ## TEST AND RUN
 ![Demo](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif "Demo")
+<img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif" height="50%" alt="Demo" tittle="Demo" />
 ----
 ## DISCUSSION
 1. What's happened to **adjusting learning rate?**<br>
