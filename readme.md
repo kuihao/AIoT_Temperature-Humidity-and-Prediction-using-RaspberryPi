@@ -24,8 +24,8 @@ ARCHITECTURE<br>
     * Let "**y'**" be the **prediction PM2.5**,<br>
     "**x**" be the **features** of 9 hours sensor types (ex. CO, NO, PM10, PM2.5, Rainfalls),<br>
     "**w**" be the **weights** of features
-    * Function1: **y’ = w * x**
-    * Function2: **y’ = w1 * x + w2 * x^2**
+    * Function 1: **y’ = w * x**
+    * Function 2: **y’ = w1 * x + w2 * x^2**
 * **Loss function**<br>
 **RMSE** (root-mean-square error)
 * **Gradient descent**<br>
@@ -75,7 +75,7 @@ Every 9 hours with 15 sensor type/hour be the features and **predict the PM2.5 o
 * [DataPreprocession.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/DataPreprocession.py): Data cleaning, Dataset spliting
 * [TestDataPreprocessing.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/TestDataPreprocessing.py): Feature extraction, Shuffle
 * [LinearRegression.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/LinearRegression.py): Feature extraction, Shuffle,  Normalization,Split validation set, Training, Prediction
-* [ReDesignModel_Seq.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/ReDesignModel_Seq.py): Same as [LinearRegression.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/LinearRegression.py) but use "squarefunction model"
+* [ReDesignModel_Seq.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/ReDesignModel_Seq.py): Same as [LinearRegression.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterLinearRegression/LinearRegression.py) but use "square function model"
 * [getHT.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/getHT.py): Raspberry Pi reads temperature and humidity datas from DHT11 
 * [CSVDownloader_GoogleSheet.py](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterGoogleSheetTransfer/CSVDownloader_GoogleSheet.py): Automatically download datas frominternet google sheet
 * [getUbidotsData.gs](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterGoogleSheetTransfer/getUbidotsData.gs): Get datas from Ubidots to Google sheet, "gs"means "Google Apps Script"
