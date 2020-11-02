@@ -1,15 +1,12 @@
 # 2020/11/02 HOMEWORK 1 - FINAL REPROT
-[TOC]
------
------
 ## CONTENT
 * <a herf="#anchor0">PROBLEM DESPRICTION</a>
 * <a herf="#anchor0">HIGHLIGHT</a>
-    * <a herf="#anchor1">PRE-PROCESSING</a>
-    * <a herf="#anchor2">ADJUST LEARNING  RATE</a>
-    * <a herf="#anchor3">FEATURE SELECTION</a>
-    * <a herf="#anchor4">FEATURE SCALING</a>
-    * <a herf="#anchor5">PERFORMANCE IMPORVEMENT</a>
+    * <a herf="#pre-processing">PRE-PROCESSING</a>
+    * <a herf="#adjust-learning--rate">ADJUST LEARNING  RATE</a>
+    * <a herf="#feature-selection">FEATURE SELECTION</a>
+    * <a herf="#feature-scaling">FEATURE SCALING</a>
+    * <a herf="#performance-imporvement">PERFORMANCE IMPORVEMENT</a>
 * LISTING
     * [DataPreprocession.py](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/LinearRegression/DataPreprocession.py): Data cleaning, Dataset spliting
     * [TestDataPreprocessing.py](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/LinearRegression/TestDataPreprocessing.py): Feature extraction, Shuffle
@@ -21,13 +18,16 @@
 * TEST AND RUN
 * DISCUSSION
 ----
-## <span id="anchor1">PRE-PROCESSING</sapn>
-
-## <span id="anchor2">ADJUST LEARNING  RATE</sapn>
+## PROBLEM DESPRICTION
+----
+## HIGHLIGHT
+### PRE-PROCESSING
+### ADJUST LEARNING  RATE
 分析對於收斂結果的影響
-
-## <span id="anchor3">FEATURE SELECTION</sapn>
-
-## <span id="anchor4">FEATURE SCALING</sapn>
-
-## <span id="anchor5">PERFORMANCE IMPORVEMENT</sapn>
+### FEATURE SELECTION
+### FEATURE SCALING
+### PERFORMANCE IMPORVEMENT
+----
+## TEST AND RUN
+----
+## DISCUSSION
