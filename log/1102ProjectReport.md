@@ -1,7 +1,6 @@
 # 2020/11/02 HOMEWORK 1 - FINAL REPROT
 ARCHITECTURE<br>
-![Architecture](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/Architecture.png "Architecture")
-
+<center><img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/Architecture.png" width="70%" height="70%" alt="Architecture" title="Architecture" /></center>
 ----
 ## CONTENT
 * [PROBLEM DESPRICTION](#problem-despriction)
@@ -48,27 +47,27 @@ Every 9 hours with 15 sensor type/hour be the features and **predict the PM2.5 o
 
 ### ADJUST LEARNING  RATE
 ![plot of adjusting learing rate](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/LearningRateAdjusting.png "plot of adjusting learing rate")
-##### Model: Power of one
-##### Gradient: Vanilla g radient descent
-##### Iteration: 1,000 times
+#### Model: Power of one
+#### Gradient: Vanilla g radient descent
+#### Iteration: 1,000 times
 
 ### FEATURE SELECTION
 ![plot of features selection](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/FeatureSelection.png "plot of features selection")
-##### Training set number: 4,521
-##### Validation set number: 1,131
-##### Iteration: 10,000 times 
-##### Gradient: AdaGrad
+#### Training set number: 4,521
+#### Validation set number: 1,131
+#### Iteration: 10,000 times 
+#### Gradient: AdaGrad
 
 ### FEATURE SCALING
 ![plot of features scaling](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/FeatrueScaling.png "plot of features scaling")
-##### Z-Score (Standard Score): (x – μ) / σ
-##### Max-Min: x - min(x) / max(x) - min(x)
+#### Z-Score (Standard Score): (x – μ) / σ
+#### Max-Min: x - min(x) / max(x) - min(x)
 
 ### PERFORMANCE IMPORVEMENT
 ![plot of IMPORVEMENT](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/FinalResult.png "plot of IMPORVEMENT")
-##### Training set number: 5,652
-##### Testing set number: 1,446
-##### Iteration: 150,000 times
+#### Training set number: 5,652
+#### Testing set number: 1,446
+#### Iteration: 150,000 times
 
 ----
 ## LISTING
@@ -81,8 +80,7 @@ Every 9 hours with 15 sensor type/hour be the features and **predict the PM2.5 o
 * [getUbidotsData.gs](https://github.com/kuihaoAIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/masterGoogleSheetTransfer/getUbidotsData.gs): Get datas from Ubidots to Google sheet, "gs"means "Google Apps Script"
 ----
 ## TEST AND RUN
-![Demo](https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif "Demo")
-<img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif" height="50%" alt="Demo" tittle="Demo" />
+<center><img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif" width="70%" height="70%" alt="Demo" title="Demo" /></center>
 ----
 ## DISCUSSION
 1. What's happened to **adjusting learning rate?**<br>
