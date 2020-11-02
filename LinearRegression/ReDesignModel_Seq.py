@@ -39,21 +39,23 @@ import math
 '''
 [Partial training and Validation test]
 '''
+# 以下為正式全部的訓資
 x_train_set = x
 y_train_set = y
+
 import random
 features = 15 * 9 + 1
 item = len(x_train_set)
 w1 = np.zeros([features, 1]) # features*1 
 w2 = np.zeros([features, 1]) # features*1 
 x_train_set = np.concatenate((np.ones([item, 1]), x_train_set), axis=1).astype(float) # 常數項水平合上 x_train_set 
-## x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
+# x_validation = np.concatenate((np.ones([len(x_validation), 1]), x_validation), axis=1).astype(float)
 # 以下為調整 Gradient 的重要參數 
-Model = 'Square-F12345F10F12F13'
+Model = 'Square only PM2.5'
 SavingDialog = True  
-Gradient_Method = 'RMSProp'
-learning_rate = 0.01
-iter_time = 15000
+Gradient_Method = 'AdaGrad'
+learning_rate = 1
+iter_time = 20000
 # AdaGrad 參數
 adagrad_HSS_1 = np.zeros([features, 1]) # [HSS] Historical Sum of Grdient Square 使每個參數的 Learning rate變得客製化
 adagrad_HSS_2 = np.zeros([features, 1])
@@ -67,8 +69,8 @@ eps = 0.00000000001 # /epsilon/ 1e-11, 1e-8, 1e-6
 ## gc.collect()
 ## stop_loop = False
 ## epoch = iter_time
-## #batch_size = item
-## #iter_time = math.ceil(iter_time/batch_size)
+## # batch_size = item #
+## # iter_time = math.ceil(iter_time/batch_size) #
 ## # MBGD
 ## batch_size = int(0.1*item)
 ## iter_time = math.ceil(iter_time/(item/batch_size))
@@ -93,18 +95,41 @@ loss_array = []
 # 紀錄迭代次數
 count = 0 
 # 篩選 Features
-L0 = np.zeros([item, 18])
-x_train_set[:, 109:127] = L0 # 'WIND_DIREC', 'WIND_SPEED
-L0 = np.zeros([item, 45])
-x_train_set[:, 9:54] = L0 # 'CO', 'NO', 'NO2', 'NOx', 'O3'
-L0 = np.zeros([item, 9])
-x_train_set[:, 90:99] = L0 # SO2
+## L0 = np.zeros([item, 18])
+## x_train_set[:, 109:127] = L0 # 'WIND_DIREC', 'WIND_SPEED
+## L0 = np.zeros([item, 45])
+## x_train_set[:, 9:54] = L0 # 'CO', 'NO', 'NO2', 'NOx', 'O3'
+## L0 = np.zeros([item, 9])
+## x_train_set[:, 90:99] = L0 # SO2
+# validation 的
 ## L0 = np.zeros([len(x_validation), 18])
 ## x_validation[:, 109:127] = L0
 ## L0 = np.zeros([len(x_validation), 45])
 ## x_validation[:, 9:54] = L0
 ## L0 = np.zeros([len(x_validation), 9])
 ## x_validation[:, 90:99] = L0
+
+# Only 5 hours
+## L0 = np.zeros([item, 4])
+## for k in range(15):
+##   x_train_set[:,k*9+1:k*9+4+1] = L0
+## L0 = np.zeros([len(x_validation), 4])
+## for k in range(15):
+##   x_validation[:,k*9+1:k*9+4+1] = L0
+
+# 只有pm2.5
+L0 = np.zeros([item, 9])
+for k in range(6):
+  x_train_set[:,k*9+1:k*9+9+1] = L0
+for k in range(8,15):
+  x_train_set[:,k*9+1:k*9+9+1] = L0
+## L0 = np.zeros([len(x_validation), 9])
+## for k in range(6):
+##   x_validation[:,k*9+1:k*9+9+1] = L0
+## for k in range(8,15):
+##   x_validation[:,k*9+1:k*9+9+1] = L0
+
+# iteration
 for t in range(iter_time):
   count += 1
   # Vanilla Gradient descenting
@@ -114,27 +139,29 @@ for t in range(iter_time):
   ## w2 = w2 - learning_rate * gradient2        
 
   # Momentum
+  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
   ## gradient = (-2) * np.dot(x_train_set.transpose(), (y_train_set - np.dot(x_train_set, w))) # features*1
   ## momentum = Lambda * momentum - learning_rate * gradient
   ## w = w + momentum
 
   # AdaGrad Method [Adaptive learning rate]
-  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  ## adagrad_HSS_1 += gradient1 ** 2
-  ## adagrad_HSS_2 += gradient2 ** 2
-  ## w1 = w1 - learning_rate / np.sqrt(adagrad_HSS_1 + eps) * gradient1
-  ## w2 = w2 - learning_rate / np.sqrt(adagrad_HSS_2 + eps)* gradient2 
+  gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  adagrad_HSS_1 += gradient1 ** 2
+  adagrad_HSS_2 += gradient2 ** 2
+  w1 = w1 - learning_rate / np.sqrt(adagrad_HSS_1 + eps) * gradient1
+  w2 = w2 - learning_rate / np.sqrt(adagrad_HSS_2 + eps)* gradient2 
 
   # RMSProp (Root-Mean-Square propagation) [Adaptive learning rate]
   # EMA 和 Momentum 有點類似，都是用迭代小數係數達到「歷史數據影響力指數遞減」
   # propagation 傳播，就是指隨著時間越長、傳播的越遠，gradient**2 的影響力要越小
-  gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
-  Prop1 = Alpha * Prop1 + (1-Alpha) * (gradient1**2) # Tip:adagrad_HSS += gradient**2
-  Prop2 = Alpha * Prop2 + (1-Alpha) * (gradient2**2) # Tip:adagrad_HSS += gradient**2
-  w1 = w1 - learning_rate / np.sqrt(Prop1+eps) * gradient1
-  w2 = w2 - learning_rate / np.sqrt(Prop2+eps) * gradient2
+  ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## gradient2 = 2 * np.dot((x_train_set**2).transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
+  ## Prop1 = Alpha * Prop1 + (1-Alpha) * (gradient1**2) # Tip:adagrad_HSS += gradient**2
+  ## Prop2 = Alpha * Prop2 + (1-Alpha) * (gradient2**2) # Tip:adagrad_HSS += gradient**2
+  ## w1 = w1 - learning_rate / np.sqrt(Prop1+eps) * gradient1
+  ## w2 = w2 - learning_rate / np.sqrt(Prop2+eps) * gradient2
   
   # Adam (Ada + momentum) SGDM + RMSProp 缺點：真的不太會收斂，最後一直震盪
   ## gradient1 = 2 * np.dot(x_train_set.transpose(), (np.dot(x_train_set, w1) + np.dot(x_train_set**2, w2) - y_train_set)) # features*1
@@ -160,7 +187,7 @@ for t in range(iter_time):
   loss = np.sqrt(loss_sse/item) # RMSE (Root-mean-square error)
   loss_array.append(loss)
   # 文字顯示 Loss 變化
-  if (not(count%1000)) | (count==iter_time-1):
+  if (not(count%5000)) | (count==iter_time-1):
      print('Iter_time = ', count, "Loss(error) = ", loss)
   #---------------#
   # SGD
@@ -303,12 +330,23 @@ test_x = np.concatenate((np.ones([len(test_x), 1]), test_x), axis = 1).astype(fl
 test_x
 # print(test_x)
 # 遮罩一些 Features 9:54
-L0 = np.zeros([len(test_x), 18])
-test_x[:,109:127] = L0
-L0 = np.zeros([len(test_x), 45])
-test_x[:,9:54] = L0
+# 部分
+## L0 = np.zeros([len(test_x), 18])
+## test_x[:,109:127] = L0
+## L0 = np.zeros([len(test_x), 45])
+## test_x[:,9:54] = L0
+## L0 = np.zeros([len(test_x), 9])
+## test_x[:,90:99] = L0
+# 5小時
+## L0 = np.zeros([len(test_x), 4])
+## for k in range(15):
+##   test_x[:,k*9+1:k*9+4+1] = L0
+# 剩 PM2,5
 L0 = np.zeros([len(test_x), 9])
-test_x[:,90:99] = L0
+for k in range(6):
+  test_x[:,k*9+1:k*9+9+1] = L0
+for k in range(8,15):
+  test_x[:,k*9+1:k*9+9+1] = L0
 '''
 [Prediction] 對 Function 輸入測試資料及參數
 '''
@@ -333,13 +371,14 @@ with open(r'LinearRegression\PredictionResult\PredictionResult.csv', mode='w', n
 '''
 import datetime
 # 顯示實驗數據
-## Vali_Ave_Err = np.sqrt(np.sum((y_validation - (np.dot(x_validation, w1) + np.dot(x_validation**2, w2)))**2)/len(y_validation))
 Test_Ave_Err = np.sqrt(np.sum((test_y - ans_y)**2)/len(test_y))
-## # 全部訓練集時以下解除，Validation 檢測時以下要屏蔽
+# 全部訓練集時以下要屏蔽
+## Vali_Ave_Err = np.sqrt(np.sum((y_validation - (np.dot(x_validation, w1) + np.dot(x_validation**2, w2)))**2)/len(y_validation))
+# 全部訓練集時以下解除，Validation 檢測時以下要屏蔽
 y_validation = '' 
 Vali_Ave_Err = 0 
 time = (datetime.datetime.now()).strftime("%y/%m/%d %H:%M:%S")
-Train_error_rate = round(np.sqrt((loss_sse)/(np.sum(y**2)))*100, 2)
+Train_error_rate = round(np.sqrt(loss_sse)/np.sqrt(np.sum(y**2))*100, 2)
 row =   [time, Model, item, 
         len(y_validation), len(test_y), 
         Normalization_Method, learning_rate, 
