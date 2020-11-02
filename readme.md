@@ -1,6 +1,6 @@
 # 2020/11/02 HOMEWORK 1 - FINAL REPROT
 ARCHITECTURE<br>
-<center><img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/Architecture.png" width="70%" height="70%" alt="Architecture" title="Architecture" /></center>
+<img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/Architecture.png" width="70%" height="70%" alt="Architecture" title="Architecture" />
 
 ----
 ## CONTENT
@@ -82,7 +82,11 @@ Every 9 hours with 15 sensor type/hour be the features and **predict the PM2.5 o
 
 ----
 ## TEST AND RUN
-<center><img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif" width="70%" height="70%" alt="Demo" title="Demo" /></center>
+### Demo code running
+<img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/runcode.gif" width="70%" height="70%" alt="Demo" title="Demo" />
+
+### Comparison of gradient descent
+<img src="https://github.com/kuihao/AIoT_Temperature-Humidity-and-Prediction-using-RaspberryPi/blob/master/log/GradientComparison.png" width="70%" height="70%" alt="plot of gradient comparison" title="plot of gradient comparison" />
 
 ----
 ## DISCUSSION
